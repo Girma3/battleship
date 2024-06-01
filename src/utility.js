@@ -1,5 +1,3 @@
-import { version } from "html-webpack-plugin";
-
 /**
  *ship  has name,length and hits,position as property and isSunk and hit as method
  *ship.position - is an array that hold coordinates of the ship.
@@ -36,6 +34,8 @@ function Ship(shipName, length, hits = 0) {
  * @returns
  */
 function GameBoard() {
+  const shipsPosition = [];
+  const missedShot = [];
   function createBoard(row = 10, column = 10) {
     const allCoordinates = new Map();
     const inverseCoordinate = new Map();
@@ -70,13 +70,37 @@ function GameBoard() {
     return { horizontal, vertical };
   }
 
-  function placeShip(firstCoordinate, length) {
-    return Position(firstCoordinate, length);
+  function placeVertical(firstCoordinate, length) {
+    const place = Position(firstCoordinate, length);
+    place.vertical.forEach((coordinate) => {
+      this.shipsPosition.push(coordinate.toString());
+    });
+    return place.vertical;
+  }
+  function placeHorizontal(firstCoordinate, length) {
+    const place = Position(firstCoordinate, length);
+    place.horizontal.forEach((coordinate) => {
+      this.shipsPosition.push(coordinate.toString());
+    });
+    return place.horizontal;
+  }
+  function receiveAttack(coordinate) {
+    const c = this.shipsPosition;
+
+    console.log(c);
+    return isHit(this.shipsPosition, coordinate);
+  }
+  function isHit(array, number) {
+    console.log(array);
+    return array.includes(number.toString());
   }
 
   return {
+    shipsPosition,
     createBoard,
-    placeShip,
+    receiveAttack,
+    placeHorizontal,
+    placeVertical,
   };
 }
 
