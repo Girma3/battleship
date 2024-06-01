@@ -1,5 +1,5 @@
 /* eslint-disable no-undef */
-import { sum, Ship } from "./utility";
+import { sum, Ship, GameBoard } from "./utility";
 /*eslint no-undef: "error"*/
 test("adds 1 + 2 to equal 3", () => {
   expect(sum(1, 2)).toBe(3);
@@ -20,10 +20,36 @@ describe("submarine", () => {
     expect(submarine.isSunk()).toBeTruthy();
   });
 });
+/*
 describe("board", () => {
   test("is ship position vertical", () => {
     expect(submarine.positions).toContain("0,0");
     expect(submarine.positions).toContain("0,1");
     expect(submarine.positions).toContain("0,2");
+  });
+});
+*/
+describe("is game board return vertical position", () => {
+  test("vertical position ", () => {
+    const coordinate = 0; // [0,0];
+    const length = 3;
+
+    expect(GameBoard().placeShip(coordinate, length).vertical).toEqual([
+      [0, 0],
+      [0, 1],
+      [0, 2],
+    ]);
+  });
+});
+describe("is game board return horizontal position", () => {
+  test("vertical position ", () => {
+    const coordinate = 0; // [0,0];
+    const length = 3;
+
+    expect(GameBoard().placeShip(coordinate, length).horizontal).toEqual([
+      [0, 0],
+      [1, 0],
+      [2, 0],
+    ]);
   });
 });
