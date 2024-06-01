@@ -20,15 +20,7 @@ describe("submarine", () => {
     expect(submarine.isSunk()).toBeTruthy();
   });
 });
-/*
-describe("board", () => {
-  test("is ship position vertical", () => {
-    expect(submarine.positions).toContain("0,0");
-    expect(submarine.positions).toContain("0,1");
-    expect(submarine.positions).toContain("0,2");
-  });
-});
-*/
+
 describe("is game board return vertical position", () => {
   test("vertical position ", () => {
     const coordinate = 0; // [0,0];
@@ -41,15 +33,15 @@ describe("is game board return vertical position", () => {
     ]);
   });
 });
-describe("is game board return horizontal position", () => {
+describe("is ", () => {
   test("vertical position ", () => {
-    const coordinate = 0; // [0,0];
-    const length = 3;
-
-    expect(GameBoard().placeShip(coordinate, length).horizontal).toEqual([
+    const patrolShip = Ship("patrol", 2, 0);
+    patrolShip.positions = [
       [0, 0],
-      [1, 0],
-      [2, 0],
-    ]);
+      [0, 1],
+      [0, 2],
+    ];
+    GameBoard().receiveAttack([0, 1]);
+    expect(patrolShip.hits).toEqual(1);
   });
 });
