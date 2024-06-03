@@ -41,10 +41,11 @@ describe("is ", () => {
     const place = board.placeVertical(patrolShip, 0, 2); // 0 is [0,0] in coordinate on board
     const attack = board.receiveAttack([0, 1]); // place is array must contain [[0,0],[0,1]]
     const anotherAttack = board.receiveAttack([1, 4]);
-    const thirdAttack = board.receiveAttack([0, 1]);
+    const thirdAttack = board.receiveAttack([0, 0]);
     expect(attack).toBeTruthy();
     expect(anotherAttack).toBeFalsy();
     expect(patrolShip.hits).toEqual(2);
-    expect(board.missedShots).toEqual([1, 4]);
+    expect(board.isMiss(board.missedShots, [1, 4].toString())).toBeTruthy();
+    expect(board.isHit(board.shipsPosition, [0, 0].toString())).toBeTruthy();
   });
 });
