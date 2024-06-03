@@ -34,8 +34,10 @@ function Ship(shipName, length, hits = 0) {
  * @returns
  */
 function GameBoard() {
+  const allShips = [];
   const shipsPosition = [];
-  const missedShot = [];
+  const targetHit = [];
+  const missedShots = [];
   function createBoard(row = 10, column = 10) {
     const allCoordinates = new Map();
     const inverseCoordinate = new Map();
@@ -70,29 +72,60 @@ function GameBoard() {
     return { horizontal, vertical };
   }
 
-  function placeVertical(firstCoordinate, length) {
+  function placeVertical(ship, firstCoordinate, length) {
     const place = Position(firstCoordinate, length);
     place.vertical.forEach((coordinate) => {
-      this.shipsPosition.push(coordinate.toString());
+      shipsPosition.push(coordinate.toString());
+      ship.positions.push(coordinate.toString());
     });
+    allShips.push(ship);
     return place.vertical;
   }
-  function placeHorizontal(firstCoordinate, length) {
+  function placeHorizontal(ship, firstCoordinate, length) {
     const place = Position(firstCoordinate, length);
     place.horizontal.forEach((coordinate) => {
-      this.shipsPosition.push(coordinate.toString());
+      shipsPosition.push(coordinate.toString());
+      ship.positions.push(coordinate.toString());
     });
+    allShips.push(ship);
     return place.horizontal;
   }
   function receiveAttack(coordinate) {
-    const c = this.shipsPosition;
-
-    console.log(c);
-    return isHit(this.shipsPosition, coordinate);
+    const shot = isHit(shipsPosition, coordinate.toString());
+    if (shot === true) {
+      targetHit.push(coordinate.toString());
+      whichShip(allShips, coordinate);
+      return true;
+    } else {
+      missedShots.push(coordinate.toString());
+      return false;
+    }
   }
   function isHit(array, number) {
-    console.log(array);
-    return array.includes(number.toString());
+    return array.includes(number);
+  }
+  function isMiss(array, number) {
+    let result = false;
+
+    array.forEach((shot) => {
+      if ((shot === number) === true) {
+        return (result = true);
+      }
+    });
+    return result;
+  }
+  function whichShip(allShips, coordinate) {
+    allShips.forEach((ship) => {
+      ship.positions.forEach((position) => {
+        if (coordinate.toString() === position) {
+          ship.hit();
+        }
+      });
+    });
+  }
+
+  function isAllShipSunk(arrayOne, arrayTwo) {
+    return arrayOne.length === arrayTwo.length ? true : false;
   }
 
   return {
@@ -101,6 +134,10 @@ function GameBoard() {
     receiveAttack,
     placeHorizontal,
     placeVertical,
+    missedShots,
+    isMiss,
+    isHit,
+    isAllShipSunk,
   };
 }
 
