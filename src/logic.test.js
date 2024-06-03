@@ -23,10 +23,11 @@ describe("submarine", () => {
 
 describe("is game board return vertical position", () => {
   test("vertical position ", () => {
+    const carrier = Ship("carrier", 3, 0);
     const coordinate = 0; // [0,0];
     const length = 3;
 
-    expect(GameBoard().placeVertical(coordinate, length)).toEqual([
+    expect(GameBoard().placeVertical(carrier, coordinate, length)).toEqual([
       [0, 0],
       [0, 1],
       [0, 2],
@@ -37,10 +38,13 @@ describe("is ", () => {
   test("check the attack ", () => {
     const patrolShip = Ship("patrol", 2, 0);
     const board = GameBoard();
-    const place = board.placeVertical(0, 2); // 0 is [0,0] in coordinate on board
+    const place = board.placeVertical(patrolShip, 0, 2); // 0 is [0,0] in coordinate on board
     const attack = board.receiveAttack([0, 1]); // place is array must contain [[0,0],[0,1]]
     const anotherAttack = board.receiveAttack([1, 4]);
+    const thirdAttack = board.receiveAttack([0, 1]);
     expect(attack).toBeTruthy();
     expect(anotherAttack).toBeFalsy();
+    expect(patrolShip.hits).toEqual(2);
+    expect(board.missedShots).toEqual([1, 4]);
   });
 });
