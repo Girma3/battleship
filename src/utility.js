@@ -25,10 +25,16 @@ function Ship(shipName, length, hits = 0) {
 }
 /**
  *GameBoard - object that has this methods.
- *GameBoard().placeShip(coordinate, length) - method that receive one coordinate and length of ship and return object that is  array of coordinates on board vertical and horizontal.
+ *GameBoard().placeVertical(ship, coordinate, length) - method that receive ship object, one coordinate and length of ship and return array of coordinates on vertical place on board .
+ *GameBoard().placeHorizontal(ship, coordinate, length) - method that receive ship object, one coordinate and length of ship and return array of coordinates on horizontal place on board .
  *GameBoard().receiveAttack(coordinate) - method that receive coordinate and record if it is hit or miss by checking ship positions.
  *GameBoard().createBoard(row, col) - method that accept row and col and create board and return board and hashmap that contain
- *  number as key and coordinate as value(0 - [0,0]...99,[9,9]) and reverse of another has map coordinate as key and value as number
+ *number as key and coordinate as value(0 - [0,0]...99,[9,9]) and reverse of another has map coordinate as key and value as number
+ * GameBoard().isSunk() - return boolean if all ship on the board is sunk or not.
+ * GameBoard().isMiss(board, coordinate) && GameBoard().isHit(board, coordinate) -  check the coordinate is hit or miss
+ *GameBoard().missedShots - return array of coordinates for missed shots.
+ *GameBoard().targetHit - return array of coordinates for hit shots.
+ * GameBoard().shipsPositions - return array of coordinate occupied by the ships.
  * @param {*} a
  * @param {*} b
  * @returns
@@ -38,7 +44,7 @@ function GameBoard() {
   const shipsPosition = [];
   const targetHit = [];
   const missedShots = [];
-  function createBoard(row = 10, column = 10) {
+  function createBoard(row, column) {
     const allCoordinates = new Map();
     const inverseCoordinate = new Map();
     const board = [];
@@ -56,17 +62,27 @@ function GameBoard() {
     }
     return { board, allCoordinates, inverseCoordinate };
   }
-
+  // function to position on 10 x 10 board
   function Position(number, length) {
     const board = createBoard(10, 10);
     const getCoordinate = board.allCoordinates.get(number);
-    const vertical = [];
-    const horizontal = [];
-    if (number >= 0 && number < 10) {
+    let vertical = [];
+    let horizontal = [];
+    const reverseH = [];
+    const reverseV = [];
+    if (number >= 0 && number < 10 && number + length < 10) {
       for (let i = 0; i < length; i++) {
         horizontal.push([getCoordinate[0] + i, getCoordinate[1]]);
         vertical.push([getCoordinate[0], getCoordinate[1] + i]);
       }
+    } else {
+      for (let i = 0; i < length; i++) {
+        reverseH.push([getCoordinate[0], getCoordinate[1] - i]);
+        reverseV.push([getCoordinate[0] + i, getCoordinate[1]]);
+      }
+
+      horizontal = reverseH;
+      vertical = reverseV;
     }
 
     return { horizontal, vertical };
@@ -106,7 +122,6 @@ function GameBoard() {
   }
   function isMiss(array, number) {
     let result = false;
-
     array.forEach((shot) => {
       if ((shot === number) === true) {
         return (result = true);
@@ -114,6 +129,7 @@ function GameBoard() {
     });
     return result;
   }
+  //method to call hit on specific ship
   function whichShip(allShips, coordinate) {
     allShips.forEach((ship) => {
       ship.positions.forEach((position) => {
@@ -130,14 +146,25 @@ function GameBoard() {
 
   return {
     shipsPosition,
+    missedShots,
+    targetHit,
     createBoard,
     receiveAttack,
     placeHorizontal,
     placeVertical,
-    missedShots,
     isMiss,
     isHit,
     isAllShipSunk,
+  };
+}
+/**
+ * Player()- object that has player name and board for each players
+ *
+ */
+function Player(name) {
+  return {
+    name,
+    board: GameBoard(),
   };
 }
 
@@ -145,4 +172,4 @@ function sum(a, b) {
   return a + b;
 }
 
-export { sum, Ship, GameBoard };
+export { sum, Ship, GameBoard, Player };
