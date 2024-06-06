@@ -70,21 +70,43 @@ function GameBoard() {
     let horizontal = [];
     const reverseH = [];
     const reverseV = [];
-    if (number >= 0 && number < 10 && number + length < 10) {
+    const x = getCoordinate[0];
+    const y = getCoordinate[1];
+    console.log(getCoordinate);
+    if (x + length < 10 && y + length < 10 && x - length < 0) {
       for (let i = 0; i < length; i++) {
-        horizontal.push([getCoordinate[0] + i, getCoordinate[1]]);
-        vertical.push([getCoordinate[0], getCoordinate[1] + i]);
+        horizontal.push([x + i, y]);
+        vertical.push([x, y + i]);
+        //[0,0], [ 5,0]
       }
-    } else {
+    } else if (x + length >= 10 && y + length >= 10) {
       for (let i = 0; i < length; i++) {
-        reverseH.push([getCoordinate[0], getCoordinate[1] - i]);
-        reverseV.push([getCoordinate[0] + i, getCoordinate[1]]);
+        reverseV.push([x, y - i]);
+        reverseH.push([x - i, y]);
+        //[9,9]
+        horizontal = reverseH;
+        vertical = reverseV;
       }
 
       horizontal = reverseH;
       vertical = reverseV;
+    } else if (x + length >= 10 && y + length < 10) {
+      for (let i = 0; i < length; i++) {
+        reverseV.push([x, y + i]);
+        reverseH.push([x - i, y]);
+      }
+      //[9,2]
+      horizontal = reverseH;
+      vertical = reverseV;
+    } else if (x + length < 10 && y + length >= 10) {
+      for (let i = 0; i < length; i++) {
+        reverseV.push([x, y - i]);
+        reverseH.push([x + i, y]);
+      }
+      //[1,9]
+      horizontal = reverseH;
+      vertical = reverseV;
     }
-
     return { horizontal, vertical };
   }
 
