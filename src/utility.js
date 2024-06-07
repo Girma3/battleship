@@ -72,8 +72,8 @@ function GameBoard() {
     const reverseV = [];
     const x = getCoordinate[0];
     const y = getCoordinate[1];
-    console.log(getCoordinate);
-    if (x + length < 10 && y + length < 10 && x - length < 0) {
+
+    if (x + length < 10 && y + length < 10) {
       for (let i = 0; i < length; i++) {
         horizontal.push([x + i, y]);
         vertical.push([x, y + i]);
@@ -109,24 +109,79 @@ function GameBoard() {
     }
     return { horizontal, vertical };
   }
-
-  function placeVertical(ship, firstCoordinate, length) {
-    const place = Position(firstCoordinate, length);
-    place.vertical.forEach((coordinate) => {
-      shipsPosition.push(coordinate.toString());
-      ship.positions.push(coordinate.toString());
-    });
-    allShips.push(ship);
-    return place.vertical;
+  function randomNum() {
+    return Math.floor(Math.random() * 100);
   }
-  function placeHorizontal(ship, firstCoordinate, length) {
-    const place = Position(firstCoordinate, length);
-    place.horizontal.forEach((coordinate) => {
-      shipsPosition.push(coordinate.toString());
-      ship.positions.push(coordinate.toString());
-    });
-    allShips.push(ship);
-    return place.horizontal;
+  //function turn coordinate to number using the board hasmap
+  function convertTonumber(array, hashmap) {
+    const result = [];
+    for (let i = 0; i < array.length; i++) {
+      result.push(hashmap.get(array[i].toString()));
+    }
+    return result;
+  }
+  //function that convert coordinate to number and return random number that exclude the coordinates in  array
+  function shipCoordinate(array, hashmap) {
+    const number = randomNum();
+    if (array.length <= 0) return number;
+    const coordinateToNum = convertTonumber(array, hashmap);
+    return freeCell(randomNum, coordinateToNum);
+  }
+  //generate random number that is not occupied or not the part of an array
+  function freeCell(cb, array) {
+    const number = cb();
+    if (array.length <= 0) return number;
+    if (array.includes(number) === false) {
+      return number;
+    } else {
+      return freeCell(cb, array);
+    }
+  }
+  //function that compare generate coordinates of array  and occupied coordinate array return boolean
+  function checkCell(array, arrayTwo) {
+    for (let i = 0; i < arrayTwo.length; i++) {
+      if (array.includes(arrayTwo[i])) {
+        return true;
+      }
+    }
+    return false;
+  }
+  //function that return coordinates of array for ship using random number generated  and
+  // that exclude already occupied coordinates
+  // reverse coordinate is hashmap that contain coordinate as key and number as value ([0,0] , 0)
+  function placeHorizontal(ship, reverseCoordinate) {
+    const place = Position(
+      shipCoordinate(shipsPosition, reverseCoordinate),
+      ship.length
+    );
+    const occupied = convertTonumber(shipsPosition, reverseCoordinate);
+    const current = convertTonumber(place.horizontal, reverseCoordinate);
+    if (shipsPosition.length <= 5 || checkCell(current, occupied) === false) {
+      place.horizontal.forEach((coordinate) => {
+        shipsPosition.push(coordinate.toString());
+        ship.positions.push(coordinate.toString());
+      });
+      return place.horizontal;
+    } else {
+      placeHorizontal(ship, reverseCoordinate);
+    }
+  }
+  function placeVertical(ship, reverseCoordinate) {
+    const place = Position(
+      shipCoordinate(shipsPosition, reverseCoordinate),
+      ship.length
+    );
+    const occupied = convertTonumber(shipsPosition, reverseCoordinate);
+    const current = convertTonumber(place.vertical, reverseCoordinate);
+    if (shipsPosition.length <= 5 || checkCell(current, occupied) === false) {
+      place.vertical.forEach((coordinate) => {
+        shipsPosition.push(coordinate.toString());
+        ship.positions.push(coordinate.toString());
+      });
+      return place.vertical;
+    } else {
+      placeVertical(ship, reverseCoordinate);
+    }
   }
   function receiveAttack(coordinate) {
     const shot = isHit(shipsPosition, coordinate.toString());
@@ -193,5 +248,22 @@ function Player(name) {
 function sum(a, b) {
   return a + b;
 }
+//
+const blue = Player("blues");
+const bo = Ship("vb", 3, 0);
+const pat = Ship("nm", 2, 0);
+const destroy = Ship("nm", 4, 0);
+const submarine = Ship("nm", 3, 0);
+const bat = Ship("nm", 5, 0);
+const board = blue.board.createBoard(10, 10);
+const coordinate = board.allCoordinates;
+const rev = board.inverseCoordinate;
+const place = blue.board.placeVertical(bo, rev);
+const batplace = blue.board.placeVertical(bat, rev);
+
+const patPlace = blue.board.placeHorizontal(pat, rev);
+
+const dest = blue.board.placeVertical(destroy, rev);
+const sub = blue.board.placeVertical(submarine, rev);
 
 export { sum, Ship, GameBoard, Player };
