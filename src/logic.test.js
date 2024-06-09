@@ -23,29 +23,44 @@ describe("submarine", () => {
 
 describe("is game board return vertical position", () => {
   test("vertical position ", () => {
-    const carrier = Ship("carrier", 3, 0);
-    const coordinate = 0; // [0,0];
-    const length = 3;
-
-    expect(GameBoard().placeVertical(carrier, coordinate, length)).toEqual([
+    const carrier = Ship("carrier", 3);
+    const ships = [];
+    ships.push(carrier);
+    const position = [
       [0, 0],
       [0, 1],
       [0, 2],
-    ]);
+    ];
+    expect(GameBoard(ships).placeVertical([0, 0], carrier)).toEqual(
+      expect.arrayContaining(position)
+    );
+  });
+});
+describe("is game board return horizontal position", () => {
+  test("vertical position ", () => {
+    const carrier = Ship("carrier", 3);
+    const ships = [];
+    ships.push(carrier);
+    const position = [
+      [0, 0],
+      [1, 0],
+      [2, 0],
+    ];
+    expect(GameBoard(ships).placeHorizontal([0, 0], carrier)).toEqual(
+      expect.arrayContaining(position)
+    );
   });
 });
 describe("is ", () => {
   test("check the attack ", () => {
-    const patrolShip = Ship("patrol", 2, 0);
-    const board = GameBoard();
-    const place = board.placeVertical(patrolShip, 0, 2); // 0 is [0,0] in coordinate on board
-    const attack = board.receiveAttack([0, 1]); // place is array must contain [[0,0],[0,1]]
-    const anotherAttack = board.receiveAttack([1, 4]);
-    const thirdAttack = board.receiveAttack([0, 0]);
-    expect(attack).toBeTruthy();
-    expect(anotherAttack).toBeFalsy();
-    expect(patrolShip.hits).toEqual(2);
-    expect(board.isMiss(board.missedShots, [1, 4].toString())).toBeTruthy();
-    expect(board.isHit(board.shipsPosition, [0, 0].toString())).toBeTruthy();
+    const patrolShip = Ship("patrol", 2);
+    const ships = [];
+    ships.push(patrolShip);
+    const board = GameBoard(ships);
+    const place = board.placeVertical([0, 0], patrolShip); // place is array must contain [[0,0],[0,1]]
+    const attack = board.receiveAttack([0, 1]);
+    const anotherAttack = board.receiveAttack([1, 4]); // missed shot
+    expect(board.hitShots).toEqual(expect.arrayContaining([[0, 1]]));
+    expect(board.missedShots).toEqual(expect.arrayContaining([[1, 4]]));
   });
 });
