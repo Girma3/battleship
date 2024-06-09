@@ -28,18 +28,26 @@ function Ship(shipName, length) {
  * GameBoard.createBoard - creates board with [x,y] coordinate based on row and column number 
  * and return board and two hashmap that contain number and corresponding coordinate(0, [0,0]) and the second one inverse ([0,0], 0).
  * 
- * GameBoard.position(length) - accept coordinate and ship length and calculate the space the ship takes on 10 x 10 board.
+ * GameBoard.position(array,length) - accept coordinate[x, y] and ship length then calculate the space the ship takes on 10 x 10 board and 
+ * return array of coordinates.
  *
- * GameBoard.randomlyPosition(length) - accept ship length then return vertical or horizontal cell it takes or coordinates as an array.
- *  *
- 
+ * GameBoard.randomlyPosition(length) - accept ship length then return vertical or horizontal cell 
+ * that the ship will takes coordinates as an array by calling it self recursively if the position occupied.
+ * 
+ * GameBoard.placeVertical && GameBoard. placeHorizontal - methods use to place ship manually by accepting coordinates([x,y] and ship) return array of coordinate the ship will take.
+ * and update ships position and store coordinate to the ship.
+ *  
+ * GameBoard.receiveAttack - accept coordinate [x,y] ,check it is missed or hit shot ,report all the ship is sunk or not 
+ * and call hit on specific ship if it is a hit. 
 
  */
-function GameBoard(array) {
+function GameBoard(shipsArray) {
   const shipsPositions = [];
   const board = createBoard(10, 10);
   const coordinatesHashMap = board.allCoordinates;
   const inverseHashMap = board.inverseCoordinate;
+  const missedShots = [];
+  const hitShots = [];
 
   function createBoard(row, col) {
     const board = [];
@@ -89,11 +97,17 @@ function GameBoard(array) {
     }
     return { horizontal, vertical };
   }
-  function placeVertical(coordinate, shipLength) {
-    return Position(coordinate, shipLength).vertical;
+  function placeVertical(coordinate, ship) {
+    const shipCells = Position(coordinate, ship.length).vertical;
+    twoDimensionArray(shipCells, shipsPositions);
+    twoDimensionArray(shipCells, ship.positions);
+    return shipCells;
   }
-  function placeHorizontal(coordinate, shipLength) {
-    return Position(coordinate, shipLength).horizontal;
+  function placeHorizontal(coordinate, ship) {
+    const shipCells = Position(coordinate, ship.length).horizontal;
+    twoDimensionArray(shipCells, shipsPositions);
+    twoDimensionArray(shipCells, ship.positions);
+    return shipCells;
   }
   function randomFreeCoordinate() {
     const randomNum = randomCell(100);
@@ -124,38 +138,79 @@ function GameBoard(array) {
   }
   function randomlyPosition(shipLength) {
     const side = shipSide();
-    console.log(side);
     if (side === "horizontal") {
       const coordinate = randomFreeCoordinate();
       const spaceTaken = Position(coordinate, shipLength).horizontal;
       const result = isCoordinateFree(spaceTaken, shipsPositions);
-      if (result === true) return spaceTaken;
-      else {
+      if (result === true) {
+        shipsPositions.push(spaceTaken);
+        return spaceTaken;
+      } else {
         return randomlyPosition(shipLength);
       }
     } else if (side === "vertical") {
       const coordinate = randomFreeCoordinate();
       const spaceTaken = Position(coordinate, shipLength).vertical;
       const result = isCoordinateFree(spaceTaken, shipsPositions);
-      if (result === true) return spaceTaken;
-      else {
+      if (result === true) {
+        shipsPositions.push(coordinate);
+        return spaceTaken;
+      } else {
         return randomlyPosition(shipLength);
       }
     }
+  }
+  //function to compare coordinate exist in array of coordinates  by changing them to string first return boolean
+  function checkCoordinate(coordinate, array) {
+    let result = false;
+    array.forEach((position) => {
+      if (position.toString() === coordinate.toString()) {
+        result = true;
+        return result;
+      }
+    });
+    return result;
+  }
+  function isHit(coordinate, array) {
+    return checkCoordinate(coordinate, array);
+  }
+  function receiveAttack(coordinate) {
+    if (isHit(coordinate, shipsPositions) === true) {
+      shipsArray.forEach((ship) => {
+        if (checkCoordinate(coordinate, ship.positions)) {
+          ship.hit();
+          hitShots.push(coordinate);
+          return;
+        }
+      });
+    } else if (isHit(coordinate, shipsPositions) === false) {
+      missedShots.push(coordinate);
+      return;
+    }
+  }
+  function isSunk() {
+    return shipsPositions.length <= hitShots.length;
+  }
+  function twoDimensionArray(twoDimensionArray, oneDimensionArray) {
+    twoDimensionArray.forEach((coordinate) => {
+      oneDimensionArray.push(coordinate);
+    });
   }
   return {
     createBoard,
     placeVertical,
     placeHorizontal,
     randomlyPosition,
+    receiveAttack,
+    isHit,
+    isSunk,
+    missedShots,
+    hitShots,
+    shipsPositions,
   };
 }
-const j = GameBoard().randomlyPosition(3);
-j.forEach((coo) => {
-  console.log(coo);
-});
+
 function sum(a, b) {
   return a + b;
 }
-
-//export { sum, Ship, GameBoard };
+export { sum, Ship, GameBoard };
