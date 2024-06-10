@@ -61,7 +61,7 @@ function GameBoard(shipsArray) {
       for (let y = 0; y < col; y++) {
         board[x][y] = [x, y];
         allCoordinates.set(k, [x, y]);
-        inverseCoordinate.set([x, y], k);
+        inverseCoordinate.set([x, y].toString(), k);
         k++;
       }
     }
@@ -112,9 +112,10 @@ function GameBoard(shipsArray) {
   function randomFreeCoordinate() {
     const randomNum = randomCell(100);
     const relatedCoordinate = coordinatesHashMap.get(randomNum);
-    if (shipsPositions.includes(relatedCoordinate) === false)
+    if (shipsPositions.includes(relatedCoordinate) === false) {
+      //console.log(shipsPositions);
       return relatedCoordinate;
-    else {
+    } else {
       return randomFreeCoordinate();
     }
   }
@@ -123,39 +124,52 @@ function GameBoard(shipsArray) {
   }
 
   function isCoordinateFree(array, arrayTwo) {
-    arrayTwo.forEach((number) => {
-      array.forEach((newNumber) => {
-        if (number === newNumber) {
-          return false;
-        }
+    let result = true;
+    arrayTwo.forEach((inner) => {
+      inner.forEach((number) => {
+        array.forEach((newNumber) => {
+          if ((number.toString() === newNumber.toString()) === true) {
+            result = false;
+            return result;
+          }
+        });
       });
     });
-    return true;
+    return result;
   }
-  function shipSide() {
+  function shipDirection() {
     const randomNum = Math.random() >= 0.5;
     return randomNum ? "horizontal" : "vertical";
   }
+  function placeRandom(ship) {
+    const newPosition = randomlyPosition(ship.length);
+    // shipsPositions.push(newPosition);
+    ship.positions.push(newPosition);
+    return newPosition;
+  }
   function randomlyPosition(shipLength) {
-    const side = shipSide();
+    const side = shipDirection();
     if (side === "horizontal") {
       const coordinate = randomFreeCoordinate();
       const spaceTaken = Position(coordinate, shipLength).horizontal;
       const result = isCoordinateFree(spaceTaken, shipsPositions);
+      console.log(result);
       if (result === true) {
         shipsPositions.push(spaceTaken);
         return spaceTaken;
-      } else {
+      } else if (result === false) {
         return randomlyPosition(shipLength);
       }
     } else if (side === "vertical") {
       const coordinate = randomFreeCoordinate();
       const spaceTaken = Position(coordinate, shipLength).vertical;
       const result = isCoordinateFree(spaceTaken, shipsPositions);
+      console.log(result);
+
       if (result === true) {
-        shipsPositions.push(coordinate);
+        shipsPositions.push(spaceTaken);
         return spaceTaken;
-      } else {
+      } else if (result === false) {
         return randomlyPosition(shipLength);
       }
     }
@@ -201,6 +215,7 @@ function GameBoard(shipsArray) {
     placeVertical,
     placeHorizontal,
     randomlyPosition,
+    placeRandom,
     receiveAttack,
     isHit,
     isSunk,
@@ -209,8 +224,15 @@ function GameBoard(shipsArray) {
     shipsPositions,
   };
 }
+function Player(name, ships) {
+  const board = GameBoard(ships);
+  return {
+    board,
+    name,
+  };
+}
 
 function sum(a, b) {
   return a + b;
 }
-export { sum, Ship, GameBoard };
+export { sum, Ship, GameBoard, Player };
