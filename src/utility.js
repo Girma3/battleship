@@ -113,7 +113,6 @@ function GameBoard(shipsArray) {
     const randomNum = randomCell(100);
     const relatedCoordinate = coordinatesHashMap.get(randomNum);
     if (shipsPositions.includes(relatedCoordinate) === false) {
-      //console.log(shipsPositions);
       return relatedCoordinate;
     } else {
       return randomFreeCoordinate();
@@ -143,8 +142,10 @@ function GameBoard(shipsArray) {
   }
   function placeRandom(ship) {
     const newPosition = randomlyPosition(ship.length);
-    // shipsPositions.push(newPosition);
-    ship.positions.push(newPosition);
+    newPosition.forEach((coordinate) => {
+      ship.positions.push(coordinate);
+      shipsPositions.push(coordinate);
+    });
     return newPosition;
   }
   function randomlyPosition(shipLength) {
@@ -153,9 +154,8 @@ function GameBoard(shipsArray) {
       const coordinate = randomFreeCoordinate();
       const spaceTaken = Position(coordinate, shipLength).horizontal;
       const result = isCoordinateFree(spaceTaken, shipsPositions);
-      console.log(result);
+
       if (result === true) {
-        shipsPositions.push(spaceTaken);
         return spaceTaken;
       } else if (result === false) {
         return randomlyPosition(shipLength);
@@ -164,10 +164,8 @@ function GameBoard(shipsArray) {
       const coordinate = randomFreeCoordinate();
       const spaceTaken = Position(coordinate, shipLength).vertical;
       const result = isCoordinateFree(spaceTaken, shipsPositions);
-      console.log(result);
 
       if (result === true) {
-        shipsPositions.push(spaceTaken);
         return spaceTaken;
       } else if (result === false) {
         return randomlyPosition(shipLength);
@@ -175,10 +173,11 @@ function GameBoard(shipsArray) {
     }
   }
   //function to compare coordinate exist in array of coordinates  by changing them to string first return boolean
+
   function checkCoordinate(coordinate, array) {
     let result = false;
     array.forEach((position) => {
-      if (position.toString() === coordinate.toString()) {
+      if (coordinate.toString() === position.toString()) {
         result = true;
         return result;
       }
@@ -191,14 +190,16 @@ function GameBoard(shipsArray) {
   function receiveAttack(coordinate) {
     if (isHit(coordinate, shipsPositions) === true) {
       shipsArray.forEach((ship) => {
-        if (checkCoordinate(coordinate, ship.positions)) {
+        if (checkCoordinate(coordinate, ship.positions) === true) {
           ship.hit();
           hitShots.push(coordinate);
+
           return;
         }
       });
     } else if (isHit(coordinate, shipsPositions) === false) {
       missedShots.push(coordinate);
+
       return;
     }
   }
@@ -211,14 +212,14 @@ function GameBoard(shipsArray) {
     });
   }
   return {
-    createBoard,
     placeVertical,
     placeHorizontal,
-    randomlyPosition,
     placeRandom,
     receiveAttack,
     isHit,
     isSunk,
+    coordinatesHashMap,
+    inverseHashMap,
     missedShots,
     hitShots,
     shipsPositions,
