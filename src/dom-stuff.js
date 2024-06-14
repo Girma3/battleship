@@ -1,98 +1,119 @@
-import { Ship, GameBoard, Player } from "./utility";
-function drawBoard() {
-  const grid = document.createElement("div");
-  grid.classList.add("board");
-  grid.addEventListener("click", (e) => {
-    console.log(e.target.dataset.index);
+import { Ship, Player } from "./utility";
+import { strikeBoard, firstBoard } from "./bn";
+
+const carrier = Ship("carrier", 5);
+const battleShip = Ship("battleShip", 4);
+const destroyer = Ship("destroyer", 3);
+const submarine = Ship("submarine", 3);
+const patrol = Ship("patrol", 2);
+//
+const ships = [carrier, battleShip, destroyer, submarine, patrol];
+const playerOne = Player("kings", ships);
+const playerTwo = Player("cold", ships);
+//function that place ships randomly
+function initialBoard(player) {
+  ships.forEach((ship) => {
+    player.board.placeRandom(ship);
   });
-  const boardObj = GameBoard();
-  const board = boardObj.createBoard(10, 10);
-  const coordinates = board.allCoordinates;
-  for (let i = 0; i < 100; i++) {
-    const cell = document.createElement("div");
-    cell.classList.add("cell");
-    cell.dataset.index = i;
-    grid.appendChild(cell);
-  }
-  return grid;
+  return player;
 }
-function createPlayer(name) {
-  return Player(name);
+//const placePlayerOneSHip = initialBoard(playerOne);
+//const placePlayerTwoShip = initialBoard(playerTwo);
+/*
+*GameFlow - object that has 3 methods one to change player turn ,,second to create board using player info, 
+*           third to update board state
+*GameFlow().printBoard(player) - draw board using player hit,miss and ship position array,
+ return 10 x 10 board one with ship shown the other without the ship to show the opponent striking state on the board. 
+*/
+
+function GameFlow() {
+  const placePlayerOneSHip = initialBoard(playerOne);
+  const placePlayerTwoShip = initialBoard(playerTwo);
+  const players = [playerOne, playerTwo];
+  let activePlayer = players[0];
+  const changeTurn = () => {
+    activePlayer = activePlayer === players[0] ? players[1] : players[0];
+  };
+  const getPlayer = () => activePlayer;
+
+  const printBoard = (player) => {
+    const missStrikes = player.board.missedShots;
+    const hitStrikes = player.board.hitShots;
+    const allTheShips = player.board.shipsPositions;
+    const allCoordinateHashmap = player.board.coordinatesHashmap;
+    const shipBoardState = firstBoard(allTheShips, hitStrikes, missStrikes);
+    const strikeBoardState = strikeBoard(allTheShips, hitStrikes, missStrikes);
+    return {
+      shipBoardState,
+      strikeBoardState,
+    };
+  };
+  const printNewBoard = () => {
+    //draw current player board state using opponent hit and miss
+    //then draw striking board using current player hit and miss on opponent board
+    changeTurn();
+    const shipBoard = printBoard(getPlayer()).shipBoardState;
+    changeTurn();
+    const strikeBoard = printBoard(getPlayer()).strikeBoardState;
+
+    return {
+      shipBoard,
+      strikeBoard,
+    };
+  };
+  const playerRound = (player, clickedNum) => {
+    const coordinate = player.board.coordinatesHashMap.get(Number(clickedNum));
+    player.board.receiveAttack(coordinate);
+    printNewBoard();
+    changeTurn();
+  };
+  printNewBoard();
+  return {
+    getPlayer,
+    playerRound,
+    printNewBoard,
+  };
 }
+/**
+ * function that update the screen using game flow function
+ */
+function screenController() {
+  const game = GameFlow();
+  const turn = document.querySelector(".player-turn");
+  const playerOneShipsBoard = document.querySelector(".board-one");
+  const playerOneStrikeBoard = document.querySelector(".board-two");
+  const playerTwoShipsBoard = document.querySelector(".board-three");
+  const playerTwoStrikeBoard = document.querySelector(".board-four");
+  const updateScreen = () => {
+    playerOneShipsBoard.textContent = "";
+    playerOneStrikeBoard.textContent = "";
+    playerTwoShipsBoard.textContent = "";
+    playerTwoStrikeBoard.textContent = "";
+    //render
+    turn.textContent = `${game.getPlayer().name}`;
 
-function positionShips(name) {
-  const player = Player(name);
-  const board = player.board.createBoard(10, 10);
-  const coordinates = board.allCoordinates;
-  const reverseCoordinate = board.inverseCoordinate;
-  const takenCells = player.board.shipsPosition;
-
-  const carrier = Ship("carrier", 5, 0);
-  const battleShip = Ship("battleShip", 4, 0);
-  const destroyer = Ship("destroyer", 3, 0);
-  const submarine = Ship("submarine", 3, 0);
-  const patrol = Ship("patrol", 2, 0);
-
-  //return coordinates as number to mark  the board later
-  const carrierPlace = verticalPlace(carrier, reverseCoordinate);
-  const battleShipPlace = verticalPlace(battleShip, reverseCoordinate);
-  const destroyerPlace = verticalPlace(destroyer, reverseCoordinate);
-  const submarinePlace = verticalPlace(submarine, reverseCoordinate);
-  const patrolPlace = verticalPlace(patrol, reverseCoordinate);
-  const ships = [carrier, battleShip, destroyer, submarine, patrol];
-  const shipsCoordinates = [
-    carrierPlace,
-    battleShipPlace,
-    destroyerPlace,
-    submarinePlace,
-    patrolPlace,
-  ];
-
-  console.log(player.board.shipsPosition);
-  // function that return numbers of array converted from coordinates position [0,0] to 0 etc to mark the board
-  function placeHorizontal(ship, coordinate) {
-    return convertTonumber(
-      player.board.placeHorizontal(ship, reverseCoordinate),
-      reverseCoordinate
-    );
+    playerOneShipsBoard.appendChild(game.printNewBoard().shipBoard);
+    // playerTwoShipsBoard.appendChild(game.printNewBoard().shipBoard);
+    // playerOneStrikeBoard.appendChild(game.printNewBoard().strikeBoard);
+    playerOneStrikeBoard.appendChild(game.printNewBoard().strikeBoard);
+  };
+  function clickHandler(e) {
+    const player = game.getPlayer();
+    game.playerRound(player, e);
+    updateScreen();
   }
-  function verticalPlace(ship, reverseCoordinate) {
-    return player.board.placeVertical(ship, reverseCoordinate);
-  }
-
-  //function to  add style on cell to draw ship
-  function addStyle(array, name) {
-    for (let i = 0; i < array.length; i++) {
-      const ship = document.querySelector(`[data-index = '${array[i]}']`);
-      ship.style.border = "2px solid blue";
-      ship.textContent = `${name}`;
-    }
-  }
-
-  addStyle(convertTonumber(carrierPlace, reverseCoordinate), carrier.shipName);
-  addStyle(
-    convertTonumber(destroyerPlace, reverseCoordinate),
-    destroyer.shipName
-  );
-  addStyle(
-    convertTonumber(submarinePlace, reverseCoordinate),
-    submarine.shipName
-  );
-  addStyle(
-    convertTonumber(battleShipPlace, reverseCoordinate),
-    battleShip.shipName
-  );
-  addStyle(convertTonumber(patrolPlace, reverseCoordinate), patrol.shipName);
+  playerOneStrikeBoard.addEventListener("click", (e) => {
+    const index = e.target.dataset.index;
+    console.log(e.target);
+    clickHandler(index);
+  });
+  playerTwoStrikeBoard.addEventListener("click", (e) => {
+    const index = e.target.dataset.index;
+    console.log(e.target);
+    clickHandler(index);
+  });
+  //initial render
+  updateScreen();
 }
-
-//coordinate to number
-function convertTonumber(array, hashmap) {
-  console.log(array);
-  const result = [];
-  for (let i = 0; i < array.length; i++) {
-    result.push(hashmap.get(array[i].toString()));
-  }
-  return result;
-}
-
-export { drawBoard, createPlayer, positionShips };
+//screenController();
+export { screenController };
