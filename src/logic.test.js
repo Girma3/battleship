@@ -37,7 +37,7 @@ describe("is game board return vertical position", () => {
   });
 });
 describe("is game board return horizontal position", () => {
-  test("vertical position ", () => {
+  test("horizontal position ", () => {
     const carrier = Ship("carrier", 3);
     const ships = [];
     ships.push(carrier);
@@ -51,16 +51,39 @@ describe("is game board return horizontal position", () => {
     );
   });
 });
-describe("is ", () => {
+describe("is receive attack  record shots", () => {
   test("check the attack ", () => {
     const patrolShip = Ship("patrol", 2);
+    const destroyer = Ship("destroyer", 3);
     const ships = [];
     ships.push(patrolShip);
+    ships.push(destroyer);
     const board = GameBoard(ships);
     const place = board.placeVertical([0, 0], patrolShip); // place is array must contain [[0,0],[0,1]]
+    const placeDestroyer = board.placeVertical([4, 5], destroyer);
     const attack = board.receiveAttack([0, 1]);
+    const destroyerAttack = board.receiveAttack([4, 5]);
     const anotherAttack = board.receiveAttack([1, 4]); // missed shot
+    expect(board.shipsPositions).toEqual(expect.arrayContaining([[4, 6]]));
     expect(board.hitShots).toEqual(expect.arrayContaining([[0, 1]]));
+    expect(board.hitShots).toEqual(expect.arrayContaining([[4, 5]]));
     expect(board.missedShots).toEqual(expect.arrayContaining([[1, 4]]));
+    expect(patrolShip.hits).toEqual(1);
+  });
+});
+describe("change overlap positions", () => {
+  test("force vertical change", () => {
+    const patrolShip = Ship("patrol", 2);
+    const destroyer = Ship("destroyer", 3);
+    const ships = [];
+    ships.push(patrolShip);
+    ships.push(destroyer);
+    const board = GameBoard(ships);
+    const placePatrol = board.placeVertical([0, 0], patrolShip); // place is array must contain [[0,0],[0,1]]
+    const placeDestroyer = board.placeVertical([0, 0], destroyer);
+    const destroyerPosition = destroyer.positions;
+    console.log(destroyerPosition);
+    const position = [[0, 1]];
+    expect(destroyerPosition).toEqual(expect.not.arrayContaining(position));
   });
 });
