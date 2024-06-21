@@ -97,6 +97,21 @@ describe("which ship sunk", () => {
     board.receiveAttack([0, 1]);
     board.receiveAttack([0, 0]);
     expect(patrolShip.isSunk()).toBeTruthy();
-    expect(board.sunkShips()).toEqual(expect.arrayContaining("patrol"));
+    expect(board.sunkShips()).toEqual(expect.arrayContaining(["patrol"]));
+  });
+});
+describe("change sunk ship color", () => {
+  test("after ship sunk change color from null to preferred color", () => {
+    const patrolShip = Ship("patrol", 2);
+    const ships = [];
+    ships.push(patrolShip);
+    const board = GameBoard(ships);
+    const placePatrol = board.placeVertical([0, 0], patrolShip); //[[0,0],[0,1]]
+    expect(patrolShip.color).toBeNull();
+    board.receiveAttack([0, 1]);
+    board.receiveAttack([0, 0]);
+    expect(patrolShip.isSunk()).toBeTruthy();
+    board.changeColor("red");
+    expect(patrolShip.color).toEqual("red");
   });
 });
