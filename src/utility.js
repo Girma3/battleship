@@ -8,6 +8,7 @@
  */
 function Ship(shipName, length) {
   const hits = 0;
+  const color = null;
   function hit() {
     this.hits++;
   }
@@ -22,6 +23,7 @@ function Ship(shipName, length) {
     positions: [],
     hit,
     isSunk,
+    color,
   };
 }
 /**
@@ -97,17 +99,33 @@ function GameBoard(shipsArray) {
     }
     return { horizontal, vertical };
   }
+
   function placeVertical(coordinate, ship) {
     const shipCells = Position(coordinate, ship.length).vertical;
+    console.log(isCoordinateFree(shipCells, shipsPositions));
+    if (isCoordinateFree(shipCells, shipsPositions) === false) return null;
     twoDimensionArray(shipCells, shipsPositions);
     twoDimensionArray(shipCells, ship.positions);
     return shipCells;
   }
   function placeHorizontal(coordinate, ship) {
     const shipCells = Position(coordinate, ship.length).horizontal;
+    if (isCoordinateFree(shipCells, shipsPositions) === false) return null;
     twoDimensionArray(shipCells, shipsPositions);
     twoDimensionArray(shipCells, ship.positions);
     return shipCells;
+  }
+  function changeOverLapPositions(coordinate) {
+    const findEmptyCell = coordinate;
+    const xCoordinate = coordinate[0];
+    const ycoordinate = coordinate[1];
+    if (checkCoordinate(coordinate, shipsPositions) === false) {
+      //add 1 to ycoordinate and check recursively if true return that coordinate
+      // and add 1 to make gap ane return that coordinate
+      return coordinate;
+    } else {
+      return changeOverLapPositions([xCoordinate + 1, y]);
+    }
   }
   function randomFreeCoordinate() {
     const randomNum = randomCell(100);
@@ -125,13 +143,11 @@ function GameBoard(shipsArray) {
   function isCoordinateFree(array, arrayTwo) {
     let result = true;
     arrayTwo.forEach((inner) => {
-      inner.forEach((number) => {
-        array.forEach((newNumber) => {
-          if ((number.toString() === newNumber.toString()) === true) {
-            result = false;
-            return result;
-          }
-        });
+      array.forEach((number) => {
+        if ((number.toString() === inner.toString()) === true) {
+          result = false;
+          return result;
+        }
       });
     });
     return result;
@@ -156,6 +172,7 @@ function GameBoard(shipsArray) {
       const result = isCoordinateFree(spaceTaken, shipsPositions);
 
       if (result === true) {
+        console.log(result);
         return spaceTaken;
       } else if (result === false) {
         return randomlyPosition(shipLength);
@@ -199,7 +216,6 @@ function GameBoard(shipsArray) {
       });
     } else if (isHit(coordinate, shipsPositions) === false) {
       missedShots.push(coordinate);
-
       return;
     }
   }
@@ -211,6 +227,22 @@ function GameBoard(shipsArray) {
       oneDimensionArray.push(coordinate);
     });
   }
+  function sunkShips() {
+    const result = [];
+    shipsArray.forEach((ship) => {
+      if (ship.isSunk() === true) {
+        result.push(ship.shipName);
+      }
+    });
+    return result;
+  }
+  function changeColor(color) {
+    shipsArray.forEach((ship) => {
+      if (ship.isSunk() === true) {
+        ship.color = color;
+      }
+    });
+  }
   return {
     placeVertical,
     placeHorizontal,
@@ -218,6 +250,8 @@ function GameBoard(shipsArray) {
     receiveAttack,
     isHit,
     isSunk,
+    sunkShips,
+    changeColor,
     coordinatesHashMap,
     inverseHashMap,
     missedShots,
