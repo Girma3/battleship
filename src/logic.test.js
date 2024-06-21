@@ -87,3 +87,16 @@ describe("change overlap positions", () => {
     expect(destroyerPosition).toEqual(expect.not.arrayContaining(position));
   });
 });
+describe("which ship sunk", () => {
+  test("return sunk  ship name as an array", () => {
+    const patrolShip = Ship("patrol", 2);
+    const ships = [];
+    ships.push(patrolShip);
+    const board = GameBoard(ships);
+    const placePatrol = board.placeVertical([0, 0], patrolShip); //[[0,0],[0,1]]
+    board.receiveAttack([0, 1]);
+    board.receiveAttack([0, 0]);
+    expect(patrolShip.isSunk()).toBeTruthy();
+    expect(board.sunkShips()).toEqual(expect.arrayContaining("patrol"));
+  });
+});
