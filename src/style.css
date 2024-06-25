@@ -1,0 +1,146 @@
+@font-face {
+  font-display: swap;
+  font-family: "Graduate";
+  font-style: normal;
+  font-weight: 400;
+  src: url("./assets/fonts/graduate-v17-latin-regular.woff2") format("woff2");
+}
+* {
+  margin: 0;
+}
+body {
+  width: 100vw;
+  min-height: 100vh;
+  background-color: #002849;
+}
+main {
+  height: 100vh;
+  width: 100vw;
+}
+/*intro page*/
+.intro-page {
+  display: flex;
+  flex-direction: column;
+  gap: 20%;
+  background-color: black;
+  height: 100%;
+  font-family: Arial, Helvetica, sans-serif;
+  background-image: url("./assets/images/ships.jpg");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+}
+.header {
+  padding: 1rem;
+  background-color: rgb(15, 15, 15);
+  color: aliceblue;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all ease-in-out 2s;
+}
+/*ship placement page*/
+.ships-grid {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: rgb(3 30 70);
+}
+
+.players-name {
+  display: flex;
+}
+/* count down*/
+.pass-screen {
+  position: absolute;
+  z-index: 1000;
+  width: 100vw;
+  min-height: 100vh;
+  top: 0;
+  background-color: rgb(0, 0, 0);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  font-family: "Graduate";
+}
+/*players board,mini ships board*/
+.players-board,
+.mini-ship-holder {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  justify-items: center;
+  background-color: #292929;
+}
+/*winner modal*/
+.winner-board {
+  background-color: antiquewhite;
+  padding: 1rem;
+}
+.winner-holder {
+  box-shadow: -2px 0px 8px 3px #41cc2f;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.2rem;
+}
+.winner-modal {
+  border: none;
+  width: 20%;
+  padding: 0.5rem;
+  border-radius: 0.4rem;
+  box-shadow: -2px 0px 8px 3px #000000;
+  position: relative;
+  left: 30%;
+}
+.rematch-btn {
+  border: 2px solid green;
+  border-radius: 3px;
+  padding: 0.3rem;
+  font-weight: 500;
+}
+/*form style*/
+.player-name-input {
+  border: none;
+  padding: 0.7rem;
+  border-radius: 0.2rem;
+  background-color: antiquewhite;
+}
+
+.player-name-input:focus ~ .player-one-label {
+  top: 0.3rem;
+  left: 20%;
+  color: #19d500;
+}
+.player-two-label,
+.player-one-label {
+  position: relative;
+  bottom: 2.5rem;
+  left: 3rem;
+  color: #60635f;
+  transition: all 2s;
+}
+.player-name-input:focus ~ .player-two-label {
+  top: 20%;
+  left: 20%;
+  color: #19d500;
+}
+form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3rem;
+  background-color: rgb(39, 34, 34);
+  opacity: 0.8;
+  width: fit-content;
+  padding: 2rem;
+  height: 350px;
+  color: antiquewhite;
+}
+.input-holder {
+  display: flex;
+  flex-direction: column;
+}
