@@ -78,7 +78,48 @@ function GameFlow(playerOne, playerTwo) {
     console.log(player);
     player.board.receiveAttack(coordinate);
     printNewBoard();
-    changeTurn();
+    function winner() {
+      //if sunk ship array equal to players all ship array length the game ends
+      const firstPlayerSunkShips = printNewBoard().firstPlayerShipState;
+      const secondPlayerSunkShips = printNewBoard().secondPlayerShipState;
+      const playerOne = printNewBoard().playerOneName;
+      const playerTwo = printNewBoard().playerTwoName;
+      const allShips = player.board.shipsArray.length;
+      let msg = "";
+      if (firstPlayerSunkShips.length < 5 && secondPlayerSunkShips < 5)
+        return msg;
+      else if (
+        firstPlayerSunkShips.length === allShips &&
+        player.name === playerOne
+      ) {
+        msg = `${playerOne} you lost`;
+      } else if (
+        secondPlayerSunkShips.length === allShips &&
+        player.name === playerOne
+      ) {
+        msg = `Congratulation ${playerOne} you won 🎉`;
+      } else if (
+        secondPlayerSunkShips.length === allShips &&
+        player.name === playerTwo
+      ) {
+        msg = `${playerTwo} you lost`;
+      } else if (
+        firstPlayerSunkShips.length === allShips &&
+        player.name === playerOne
+      ) {
+        msg = `Congratulation ${playerTwo} you won 🎉`;
+      }
+      return msg;
+    }
+    if (winner() !== "") {
+      winnerModal("pussy");
+      const modal = document.querySelector("[data-winner-modal]");
+      modal.showModal();
+
+      //console.log(winner() === "");
+    } else {
+      changeTurn();
+    }
   };
 
   return {
@@ -105,9 +146,11 @@ function screenController(playerOne, playerTwo) {
   const updateScreen = () => {
     playerOneShipsBoard.textContent = "";
     playerOneStrikeBoard.textContent = "";
-    turn.textContent = `${game.getPlayer().name}`;
+    turn.textContent = `${game.getPlayer().name} turn`;
     const playerOneName = game.printNewBoard().playerOneName;
     const playerTwoName = game.printNewBoard().playerTwoName;
+    const playerOneSunkShips = game.printNewBoard().secondPlayerShipState;
+    const playerTwoSunkShips = game.printNewBoard().firstPlayerShipState;
 
     const playerOneDashBoard = document.querySelector(`.${playerOneName}`);
     const PlayerOneMiniShips =
@@ -115,32 +158,16 @@ function screenController(playerOne, playerTwo) {
     const playerTwoDashBoard = document.querySelector(`.${playerTwoName}`);
     const playerTwoMiniShips =
       playerTwoDashBoard.querySelectorAll("mini-ship-size");
-    console.log(game.printNewBoard().firstPlayerShipState);
-    console.log(game.printNewBoard().secondPlayerShipState);
 
-    updateMiniShips(
-      PlayerOneMiniShips,
-      game.printNewBoard().secondPlayerShipState,
-      "red"
-    );
-
-    updateMiniShips(
-      playerTwoMiniShips,
-      game.printNewBoard().firstPlayerShipState,
-      "red"
-    );
-
-    console.log(game.printNewBoard().secondPlayerShipState);
-    console.log(game.printNewBoard().firstPlayerShipState);
-
+    updateMiniShips(PlayerOneMiniShips, playerOneSunkShips, "red");
+    updateMiniShips(playerTwoMiniShips, playerTwoSunkShips, "red");
     playerOneShipsBoard.appendChild(game.printNewBoard().shipBoard);
-    // playerTwoShipsBoard.appendChild(game.printNewBoard().shipBoard);
-    // playerOneStrikeBoard.appendChild(game.printNewBoard().strikeBoard);
     playerOneStrikeBoard.appendChild(game.printNewBoard().strikeBoard);
   };
   function clickHandler(e) {
     const player = game.getPlayer();
     game.playerRound(player, e);
+    countdownModal();
     updateScreen();
   }
 
@@ -166,7 +193,6 @@ function drawFirstPage() {
 //draw ship placment page
 function templateShipGrid(element) {
   const secondPage = document.createElement("div");
-
   const strategyBoard = document.createElement("div");
   strategyBoard.classList.add("board-container");
   strategyBoard.appendChild(drawGrids());
@@ -174,10 +200,8 @@ function templateShipGrid(element) {
 
   //strategyBoard.classList.add("container-holder");
   const template = `
-   <div class="ships-container" data-ships-container>
-    <div class="all-ships"></div>
-  </div>
-  <div class="place-ships-btns">
+  <div class="ships-container" data-ships-container></div>
+    <div class="place-ships-btns">
     <button
       aria-label="place ships by dragging"
       class="drag-btn"
@@ -193,17 +217,14 @@ function templateShipGrid(element) {
       Randomize
     </button>
     <button class="play-btn">Play</button>
-   
-  </div>
+    </div>
  `;
   btns.innerHTML = template;
-
   secondPage.appendChild(strategyBoard);
   secondPage.appendChild(btns);
   return secondPage;
 }
 //
-
 function drawGrids() {
   const grid = document.createElement("div");
   grid.classList.add("board");
@@ -219,10 +240,7 @@ function shipsPlacement(element) {
   element.textContent = "";
   element.appendChild(templateShipGrid());
 }
-function secondPlayerShipPlacement(element) {
-  element.textContent = "";
-  element.appendChild(secondPlayerTemplate());
-}
+
 function drawBoard(element) {
   element.appendChild(drawGrids());
 }
@@ -256,37 +274,35 @@ function randomPlacement(newPlayer) {
 //countdown page
 function countDownPage() {
   const passScreen = document.querySelector(".pass-screen");
-  const dialogHolder = document.createElement("div");
-  dialogHolder.classList.add("modal-holder");
-  const modal = ` <dialog data-countdown>
-      <div class="holder">
-        <div class="msg-text" data-msg>pass the device</div>
-        <div class="counter">
-          <div class="counter-board" data-count-down></div>
-        </div>
-      </div>
-    </dialog>`;
-  dialogHolder.innerHTML = modal;
-  passScreen.appendChild(dialogHolder);
+  const template = ` 
+     <div class="msg-text" data-msg>pass the Device</div>
+      <div class="counter">
+        <div class="counter-board" data-count-down></div>
+      </div>`;
+  passScreen.innerHTML = template;
 }
 function countdownModal() {
+  const passScreen = document.querySelector(".pass-screen");
+  if (count < 0) {
+    count = 3;
+  }
   countDownPage();
-  const dialog = document.querySelector("[data-countdown]");
-  countdown(dialog);
+  countdown();
 }
 function updateCountdownUI() {
+  const passScreen = document.querySelector(".pass-screen");
   document.querySelector("[data-count-down]").textContent = count;
-  const dialog = document.querySelector("[data-countdown]");
   if (count === 0) {
-    dialog.close();
+    passScreen.textContent = "";
+    passScreen.style.display = "none";
   } else {
-    dialog.showModal();
+    passScreen.style.display = "flex";
   }
 }
 
-function countdown(dialog) {
+function countdown() {
   if (count >= 0) {
-    updateCountdownUI(dialog);
+    updateCountdownUI();
     count--;
     setTimeout(countdown, 1000);
   }
@@ -318,6 +334,54 @@ function updateMiniShips(shipsDiv, sunkShipArray, color) {
     });
   });
 }
+function winnerModal(msg) {
+  const winnerDiv = document.querySelector("[data-winner]");
+  const holder = document.createElement("div");
+  const template = `  <dialog data-winner-modal class="winner-modal">
+  <div class="winner-holder">
+    <div class="winner-board" data-winner>${msg}</div>
+    <button class="rematch-btn" data-rematch-btn>Rematch</button>
+  </div>
+</dialog>`;
+  winnerDiv.textContent = "";
+  holder.innerHTML = template;
+  winnerDiv.appendChild(holder);
+}
+function isGameEnd(player) {
+  return player.board.isSunk();
+}
+//form to accept players name
+function formTemplate(ele) {
+  const template = ` <form for="player-name">
+<div class="input-holder">
+  <input
+    type="text"
+    id="player-one-name"
+    class="player-name-input"
+    data-player-one
+    required
+  />
+  <label for="player-one-name" class="player-one-label"
+    >Player-One:</label
+  >
+</div>
+<div class="input-holder">
+  <input
+    type="text"
+    id="player-two-name"
+    class="player-name-input"
+    data-player-two
+    required
+  />
+  <label for="player-two-name" class="player-two-label" data-playerTwo
+    >Player-Two:</label
+  >
+</div>
+<button data-submit-name >Start</button>
+</form>`;
+  ele.innerHTML = template;
+}
+
 export {
   screenController,
   drawFirstPage,
@@ -329,4 +393,5 @@ export {
   randomPlacement,
   drawBoard,
   dragShips,
+  formTemplate,
 };
