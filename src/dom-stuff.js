@@ -31,16 +31,18 @@ function GameFlow(playerOne, playerTwo) {
   console.log(playerTwo);
   const players = [playerOne, playerTwo];
   let activePlayer = players[0];
+
   const changeTurn = () => {
     activePlayer = activePlayer === players[0] ? players[1] : players[0];
   };
+
   const getPlayer = () => activePlayer;
 
-  const printBoard = (player) => {
+  const printBoard = () => {
+    const player = getPlayer();
     const missStrikes = player.board.missedShots;
     const hitStrikes = player.board.hitShots;
     const allTheShips = player.board.shipsPositions;
-    const allCoordinateHashmap = player.board.coordinatesHashmap;
     const shipBoardState = firstBoard(allTheShips, hitStrikes, missStrikes);
     const strikeBoardState = strikeBoard(allTheShips, hitStrikes, missStrikes);
     const updateSunkShip = player.board.sunkShips();
@@ -50,40 +52,52 @@ function GameFlow(playerOne, playerTwo) {
       updateSunkShip,
     };
   };
+
   const printNewBoard = () => {
     //draw current player board state using opponent hit and miss
     //then draw striking board using current player hit and miss on opponent board
-    //changeTurn();
 
     changeTurn();
-    const shipBoard = printBoard(getPlayer()).shipBoardState;
-    const secondPlayerShipState = printBoard(getPlayer()).updateSunkShip;
-    const playerTwoName = getPlayer().name;
+    const opponentName = getPlayer().name;
+    const opponentPlayerShipState = printBoard(getPlayer()).updateSunkShip;
+    const opponentStrikeBoard = printBoard(getPlayer()).strikeBoardState;
     changeTurn();
-    const playerOneName = getPlayer().name;
-    const firstPlayerShipState = printBoard(getPlayer()).updateSunkShip;
-    const strikeBoard = printBoard(getPlayer()).strikeBoardState;
-
+    const currentPlayerShipBoard = printBoard(getPlayer()).shipBoardState;
+    const currentPlayerShipState = printBoard(getPlayer()).updateSunkShip;
+    const currentPlayerName = getPlayer().name;
     return {
-      playerOneName,
-      playerTwoName,
-      shipBoard,
-      strikeBoard,
-      firstPlayerShipState,
-      secondPlayerShipState,
+      opponentName,
+      currentPlayerName,
+      currentPlayerShipBoard,
+      opponentStrikeBoard,
+      opponentPlayerShipState,
+      currentPlayerShipState,
     };
   };
   const playerRound = (player, clickedNum) => {
     const coordinate = player.board.coordinatesHashMap.get(Number(clickedNum));
-    console.log(player);
-    player.board.receiveAttack(coordinate);
+    //attack opponent board by changing turn to gt opponent board
+    changeTurn();
+    getPlayer().board.receiveAttack(coordinate);
+    declareWinner(getPlayer());
+    changeTurn();
     printNewBoard();
-    function winner() {
+
+    declareWinner(player);
+    changeTurn();
+    function declareWinner(player) {
+      if (winner(player) !== "") {
+        winnerModal(winner(player));
+        const modal = document.querySelector("[data-winner-modal]");
+        modal.showModal();
+      }
+    }
+    function winner(player) {
       //if sunk ship array equal to players all ship array length the game ends
-      const firstPlayerSunkShips = printNewBoard().firstPlayerShipState;
-      const secondPlayerSunkShips = printNewBoard().secondPlayerShipState;
-      const playerOne = printNewBoard().playerOneName;
-      const playerTwo = printNewBoard().playerTwoName;
+      const firstPlayerSunkShips = printNewBoard().currentPlayerShipState;
+      const secondPlayerSunkShips = printNewBoard().opponentPlayerShipState;
+      const playerOne = printNewBoard().currentPlayerName;
+      const playerTwo = printNewBoard().opponentName;
       const allShips = player.board.shipsArray.length;
       let msg = "";
       if (firstPlayerSunkShips.length < 5 && secondPlayerSunkShips < 5)
@@ -111,15 +125,6 @@ function GameFlow(playerOne, playerTwo) {
       }
       return msg;
     }
-    if (winner() !== "") {
-      winnerModal("pussy");
-      const modal = document.querySelector("[data-winner-modal]");
-      modal.showModal();
-
-      //console.log(winner() === "");
-    } else {
-      changeTurn();
-    }
   };
 
   return {
@@ -136,21 +141,26 @@ function screenController(playerOne, playerTwo) {
   const turn = document.querySelector(".player-turn");
   const playerOneShipsBoard = document.querySelector(".board-one");
   const playerOneStrikeBoard = document.querySelector(".board-two");
+
   const firstPlayerShips = document.querySelector(".player-one-mini-ships");
   const secondPlayerShips = document.querySelector(".player-two-mini-ships");
   firstPlayerShips.textContent = "";
   secondPlayerShips.textContent = "";
+
   drawMiniShips(firstPlayerShips, playerOne.name);
   drawMiniShips(secondPlayerShips, playerTwo.name);
 
   const updateScreen = () => {
+    console.log(game.getPlayer());
     playerOneShipsBoard.textContent = "";
     playerOneStrikeBoard.textContent = "";
     turn.textContent = `${game.getPlayer().name} turn`;
-    const playerOneName = game.printNewBoard().playerOneName;
-    const playerTwoName = game.printNewBoard().playerTwoName;
-    const playerOneSunkShips = game.printNewBoard().secondPlayerShipState;
-    const playerTwoSunkShips = game.printNewBoard().firstPlayerShipState;
+    const playerOneName = game.printNewBoard().currentPlayerName;
+    const playerTwoName = game.printNewBoard().opponentName;
+    const playerOneSunkShips = game.printNewBoard().currentPlayerShipState;
+    const playerTwoSunkShips = game.printNewBoard().opponentPlayerShipState;
+    console.log(playerOneSunkShips);
+    console.log(playerTwoSunkShips);
 
     const playerOneDashBoard = document.querySelector(`.${playerOneName}`);
     const PlayerOneMiniShips =
@@ -158,27 +168,43 @@ function screenController(playerOne, playerTwo) {
     const playerTwoDashBoard = document.querySelector(`.${playerTwoName}`);
     const playerTwoMiniShips =
       playerTwoDashBoard.querySelectorAll("mini-ship-size");
-
     updateMiniShips(PlayerOneMiniShips, playerOneSunkShips, "red");
     updateMiniShips(playerTwoMiniShips, playerTwoSunkShips, "red");
-    playerOneShipsBoard.appendChild(game.printNewBoard().shipBoard);
-    playerOneStrikeBoard.appendChild(game.printNewBoard().strikeBoard);
+
+    playerOneShipsBoard.appendChild(
+      game.printNewBoard().currentPlayerShipBoard
+    );
+    playerOneStrikeBoard.appendChild(game.printNewBoard().opponentStrikeBoard);
+
+    //countdownModal();
   };
   function clickHandler(e) {
     const player = game.getPlayer();
     game.playerRound(player, e);
-    countdownModal();
     updateScreen();
   }
 
   playerOneStrikeBoard.addEventListener("click", (e) => {
     const index = e.target.dataset.index;
+    const player = game.getPlayer();
+
     console.log(index);
+
     clickHandler(index);
+    if (player.name !== "ai") {
+      game.playerRound(player, computerMove(player));
+      updateScreen();
+    }
+    //updateScreen();
+
+    // game.playerRound(player, computerMove(player));
+    // updateScreen();
   });
   //initial render
+
   updateScreen();
 }
+
 //screenController();
 function drawFirstPage() {
   const pageContainer = document.querySelector("[data-page-container]");
@@ -311,7 +337,7 @@ function countdown() {
 function drawMiniShips(ele, player) {
   const miniFleets = `
   <div class="fleet-holder ${player}">
-    <div>${player}</div>
+    <div class="mini-ship-owner">${player}</div>
 <div class="mini-carrier  mini-ship-size" data-name='carrier'></div>
 <div class="mini-battleShip  mini-ship-size" data-name='battleShip'></div>
 <div class="same-size-ships">
@@ -380,6 +406,43 @@ function formTemplate(ele) {
 <button data-submit-name >Start</button>
 </form>`;
   ele.innerHTML = template;
+}
+function computerMove(player) {
+  const pickedNum = [];
+  const adjacentSlot = player.board.hitShots;
+  const lastMove = pickedNum[pickedNum.length - 1];
+  /* if (isHit === true) {
+    //update slot
+    spotToHit();
+    return adjacentSlot.pop();
+  } else if (isHit === false) {*/
+  return randomSpot();
+  // }
+
+  function randomSpot() {
+    const move = randomNum(100);
+    if (pickedNum.includes(move) === false) {
+      return move;
+    } else {
+      return randomNum(100);
+    }
+  }
+  //function that update if we get hit the  store next and previous spot from a hit  to hit again
+  function spotToHit() {
+    const playerHits = player.board.hitShots;
+    const hitNextSpot = playerHits + 1;
+    const hitPrevSpot = lastMove - 1;
+    if (pickedNum.includes(hitNextSpot) === false && hitNextSpot < 100) {
+      adjacentSlot.push(hitNextSpot);
+    }
+    if (pickedNum.includes(hitPrevSpot) === false && hitPrevSpot >= 0) {
+      adjacentSlot.push(hitPrevSpot);
+    }
+  }
+  //pick random number from board
+  function randomNum(num) {
+    return Math.floor(Math.random() * num);
+  }
 }
 
 export {
