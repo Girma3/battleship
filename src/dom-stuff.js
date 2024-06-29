@@ -3,7 +3,7 @@ import { strikeBoard, firstBoard } from "./bn";
 import { dragShips } from "./place-ship-page/ship-position.js";
 
 let count = 3;
-const winnerMsg = [];
+let winnerMsg = [];
 
 function initialBoard(player) {
   player.board.shipsArray.forEach((ship) => {
@@ -81,20 +81,22 @@ function GameFlow(playerOne, playerTwo) {
     //attack opponent board by changing turn to gt opponent board
     changeTurn();
     getPlayer().board.receiveAttack(coordinate);
-    // declareWinner(getPlayer());
+    declareWinner(getPlayer());
+
     changeTurn();
 
     declareWinner(player);
-    printNewBoard();
+    //printNewBoard();
 
     if (winnerMsg.length > 0) {
-      console.log(player);
+      console.log(winnerMsg);
       winnerModal(winnerMsg.pop());
       const modal = document.querySelector("[data-winner-modal]");
       modal.showModal();
       isGameEnd = true;
       playerOne = null;
       playerTwo = null;
+      winnerMsg = [];
     } else {
       changeTurn();
     }
@@ -107,37 +109,31 @@ function GameFlow(playerOne, playerTwo) {
     }
     function winner(player) {
       //if sunk ship array equal to players all ship array length the game ends
-      const firstPlayerSunkShips = printNewBoard().currentPlayerShipState;
-      const secondPlayerSunkShips = printNewBoard().opponentPlayerShipState;
+      const firstPlayerSunkShips = playerOne.board.isSunk();
+      const secondPlayerSunkShips = playerTwo.board.isSunk();
       const playerOneName = playerOne.name;
       const playerTwoName = playerTwo.name;
       const allShips = player.board.shipsArray.length;
       let msg;
-      if (
-        firstPlayerSunkShips.length < allShips &&
-        secondPlayerSunkShips < allShips
-      )
+      if (firstPlayerSunkShips === false && secondPlayerSunkShips === false)
         return msg;
-      else if (
-        firstPlayerSunkShips.length === allShips &&
+      else if (firstPlayerSunkShips === true && player.name === playerOneName) {
+        msg = `${playerTwoName}  won 🎉`;
+      } else if (
+        firstPlayerSunkShips === true &&
         player.name === playerOneName
       ) {
         msg = `${playerOneName} lost`;
       } else if (
-        secondPlayerSunkShips.length === allShips &&
+        secondPlayerSunkShips === true &&
         player.name === playerOneName
       ) {
-        msg = `Congratulation, ${playerOneName} won 🎉`;
+        msg = `${playerOneName} won 🎉`;
       } else if (
-        secondPlayerSunkShips.length === allShips &&
+        secondPlayerSunkShips === true &&
         player.name === playerTwoName
       ) {
         msg = `${playerTwoName} lost`;
-      } else if (
-        firstPlayerSunkShips.length === allShips &&
-        player.name === playerOneName
-      ) {
-        msg = `Congratulation, ${playerTwoName}  won 🎉`;
       }
 
       return msg;
@@ -148,6 +144,7 @@ function GameFlow(playerOne, playerTwo) {
     getPlayer,
     playerRound,
     printNewBoard,
+    isGameEnd,
   };
 }
 /**
@@ -162,9 +159,13 @@ function screenController(playerOne, playerTwo, soloPlayer) {
   const secondPlayerShips = document.querySelector(".player-two-mini-ships");
   firstPlayerShips.textContent = "";
   secondPlayerShips.textContent = "";
-  drawMiniShips(firstPlayerShips, playerOne.name);
-  drawMiniShips(secondPlayerShips, playerTwo.name);
+
   const updateScreen = () => {
+    if (game.isGameEnd === true) {
+      return;
+    }
+    drawMiniShips(firstPlayerShips, playerOne.name);
+    drawMiniShips(secondPlayerShips, playerTwo.name);
     playerOneShipsBoard.textContent = "";
     playerOneStrikeBoard.textContent = "";
     turn.textContent = `${game.getPlayer().name} turn`;
@@ -507,19 +508,15 @@ function computerMove(player) {
     }
     //method return random number from 0 to 100
     function randomSpot() {
-      const move = randomNum(100);
-      if (pickedNum.includes(move) === false) {
-        return move;
-      } else {
-        return randomSpot();
-      }
+      let move;
+      do {
+        move = Math.floor(Math.random() * 100);
+      } while (pickedNum.includes(move));
+      return move;
     }
   }
-  //pick random number from board
-  function randomNum(num) {
-    return Math.floor(Math.random() * num);
-  }
 }
+//pick random number from board
 
 export {
   screenController,
