@@ -9,6 +9,8 @@ import { dragShips } from "./place-ship-page/ship-position.js";
 //let playerTwo = Player("cold", ships);
 //function that place ships randomly
 let count = 3;
+const winnerMsg = [];
+
 function initialBoard(player) {
   player.board.shipsArray.forEach((ship) => {
     player.board.placeRandom(ship);
@@ -27,8 +29,10 @@ function initialBoard(player) {
 */
 
 function GameFlow(playerOne, playerTwo) {
+  let isGameEnd = false;
   console.log(playerOne);
   console.log(playerTwo);
+  console.log(isGameEnd);
   const players = [playerOne, playerTwo];
   let activePlayer = players[0];
 
@@ -75,6 +79,11 @@ function GameFlow(playerOne, playerTwo) {
     };
   };
   const playerRound = (player, clickedNum) => {
+    console.log(isGameEnd);
+    if (isGameEnd === true) {
+      return;
+    }
+
     const coordinate = player.board.coordinatesHashMap.get(Number(clickedNum));
     //attack opponent board by changing turn to gt opponent board
     changeTurn();
@@ -82,47 +91,58 @@ function GameFlow(playerOne, playerTwo) {
     declareWinner(getPlayer());
     changeTurn();
     printNewBoard();
-
     declareWinner(player);
-    changeTurn();
+
+    if (winnerMsg.length > 0) {
+      winnerModal(winnerMsg.pop());
+      const modal = document.querySelector("[data-winner-modal]");
+      modal.showModal();
+      isGameEnd = true;
+    } else {
+      changeTurn();
+    }
+
     function declareWinner(player) {
-      if (winner(player) !== "") {
-        winnerModal(winner(player));
-        const modal = document.querySelector("[data-winner-modal]");
-        modal.showModal();
+      if (winner(player) === undefined) return;
+      else {
+        winnerMsg.push(winner(player));
       }
     }
     function winner(player) {
       //if sunk ship array equal to players all ship array length the game ends
       const firstPlayerSunkShips = printNewBoard().currentPlayerShipState;
       const secondPlayerSunkShips = printNewBoard().opponentPlayerShipState;
-      const playerOne = printNewBoard().currentPlayerName;
-      const playerTwo = printNewBoard().opponentName;
+      const playerOneName = playerOne.name;
+      const playerTwoName = playerTwo.name;
       const allShips = player.board.shipsArray.length;
-      let msg = "";
-      if (firstPlayerSunkShips.length < 5 && secondPlayerSunkShips < 5)
+      let msg;
+      if (
+        firstPlayerSunkShips.length < allShips &&
+        secondPlayerSunkShips < allShips
+      )
         return msg;
       else if (
         firstPlayerSunkShips.length === allShips &&
-        player.name === playerOne
+        player.name === playerOneName
       ) {
-        msg = `${playerOne} you lost`;
+        msg = `${playerOneName} lost`;
       } else if (
         secondPlayerSunkShips.length === allShips &&
-        player.name === playerOne
+        player.name === playerOneName
       ) {
-        msg = `Congratulation ${playerOne} you won 🎉`;
+        msg = `Congratulation, ${playerOneName} won 🎉`;
       } else if (
         secondPlayerSunkShips.length === allShips &&
-        player.name === playerTwo
+        player.name === playerTwoName
       ) {
-        msg = `${playerTwo} you lost`;
+        msg = `${playerTwoName} lost`;
       } else if (
         firstPlayerSunkShips.length === allShips &&
-        player.name === playerOne
+        player.name === playerOneName
       ) {
-        msg = `Congratulation ${playerTwo} you won 🎉`;
+        msg = `Congratulation, ${playerTwoName}  won 🎉`;
       }
+
       return msg;
     }
   };
@@ -136,12 +156,11 @@ function GameFlow(playerOne, playerTwo) {
 /**
  * function that update the screen using game flow function
  */
-function screenController(playerOne, playerTwo) {
+function screenController(playerOne, playerTwo, soloPlayer) {
   const game = GameFlow(playerOne, playerTwo);
   const turn = document.querySelector(".player-turn");
   const playerOneShipsBoard = document.querySelector(".board-one");
   const playerOneStrikeBoard = document.querySelector(".board-two");
-
   const firstPlayerShips = document.querySelector(".player-one-mini-ships");
   const secondPlayerShips = document.querySelector(".player-two-mini-ships");
   firstPlayerShips.textContent = "";
@@ -151,7 +170,6 @@ function screenController(playerOne, playerTwo) {
   drawMiniShips(secondPlayerShips, playerTwo.name);
 
   const updateScreen = () => {
-    console.log(game.getPlayer());
     playerOneShipsBoard.textContent = "";
     playerOneStrikeBoard.textContent = "";
     turn.textContent = `${game.getPlayer().name} turn`;
@@ -159,24 +177,22 @@ function screenController(playerOne, playerTwo) {
     const playerTwoName = game.printNewBoard().opponentName;
     const playerOneSunkShips = game.printNewBoard().currentPlayerShipState;
     const playerTwoSunkShips = game.printNewBoard().opponentPlayerShipState;
-    console.log(playerOneSunkShips);
-    console.log(playerTwoSunkShips);
 
     const playerOneDashBoard = document.querySelector(`.${playerOneName}`);
     const PlayerOneMiniShips =
       playerOneDashBoard.querySelectorAll(".mini-ship-size");
     const playerTwoDashBoard = document.querySelector(`.${playerTwoName}`);
     const playerTwoMiniShips =
-      playerTwoDashBoard.querySelectorAll("mini-ship-size");
+      playerTwoDashBoard.querySelectorAll(".mini-ship-size");
     updateMiniShips(PlayerOneMiniShips, playerOneSunkShips, "red");
     updateMiniShips(playerTwoMiniShips, playerTwoSunkShips, "red");
-
     playerOneShipsBoard.appendChild(
       game.printNewBoard().currentPlayerShipBoard
     );
     playerOneStrikeBoard.appendChild(game.printNewBoard().opponentStrikeBoard);
-
-    //countdownModal();
+    if (soloPlayer === false) {
+      countdownModal(`Pass the device to ${game.getPlayer().name}`);
+    }
   };
   function clickHandler(e) {
     const player = game.getPlayer();
@@ -187,21 +203,19 @@ function screenController(playerOne, playerTwo) {
   playerOneStrikeBoard.addEventListener("click", (e) => {
     const index = e.target.dataset.index;
     const player = game.getPlayer();
-
     console.log(index);
-
+    console.log(e.target.hasChildNodes());
+    //check clicked cell is free
+    if (index === undefined || e.target.hasChildNodes() === true) return;
     clickHandler(index);
-    if (player.name !== "ai") {
+    updateScreen();
+    //for solo player
+    if (player.name !== "ai" && player.name === "you") {
       game.playerRound(player, computerMove(player));
       updateScreen();
     }
-    //updateScreen();
-
-    // game.playerRound(player, computerMove(player));
-    // updateScreen();
   });
   //initial render
-
   updateScreen();
 }
 
@@ -216,7 +230,7 @@ function drawFirstPage() {
   logoDiv.classList.add("header");
   //}, 0);
 }
-//draw ship placment page
+//draw ship placement page
 function templateShipGrid(element) {
   const secondPage = document.createElement("div");
   const strategyBoard = document.createElement("div");
@@ -298,21 +312,21 @@ function randomPlacement(newPlayer) {
   }
 }
 //countdown page
-function countDownPage() {
+function countDownPage(msg) {
   const passScreen = document.querySelector(".pass-screen");
   const template = ` 
-     <div class="msg-text" data-msg>pass the Device</div>
+     <div class="msg-text" data-msg>${msg}</div>
       <div class="counter">
         <div class="counter-board" data-count-down></div>
       </div>`;
   passScreen.innerHTML = template;
 }
-function countdownModal() {
+function countdownModal(msg) {
   const passScreen = document.querySelector(".pass-screen");
   if (count < 0) {
     count = 3;
   }
-  countDownPage();
+  countDownPage(msg);
   countdown();
 }
 function updateCountdownUI() {
@@ -355,7 +369,7 @@ function updateMiniShips(shipsDiv, sunkShipArray, color) {
   shipsDiv.forEach((ship) => {
     sunkShipArray.forEach((sunkShip) => {
       if (ship.dataset.name === sunkShip) {
-        ship.style.backgroundColor = color;
+        ship.style.backgroundColor = `${color}`;
       }
     });
   });
@@ -373,9 +387,7 @@ function winnerModal(msg) {
   holder.innerHTML = template;
   winnerDiv.appendChild(holder);
 }
-function isGameEnd(player) {
-  return player.board.isSunk();
-}
+
 //form to accept players name
 function formTemplate(ele) {
   const template = ` <form for="player-name">
