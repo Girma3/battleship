@@ -1,13 +1,7 @@
 import { Player } from "./utility";
 import { strikeBoard, firstBoard } from "./bn";
-import { introPage } from "./first-page/first-page.js";
 import { dragShips } from "./place-ship-page/ship-position.js";
 
-//
-//const ships = [carrier, submarine, battleShip, destroyer, patrol];
-//let playerOne = Player("kings", ships);
-//let playerTwo = Player("cold", ships);
-//function that place ships randomly
 let count = 3;
 const winnerMsg = [];
 
@@ -60,7 +54,6 @@ function GameFlow(playerOne, playerTwo) {
   const printNewBoard = () => {
     //draw current player board state using opponent hit and miss
     //then draw striking board using current player hit and miss on opponent board
-
     changeTurn();
     const opponentName = getPlayer().name;
     const opponentPlayerShipState = printBoard(getPlayer()).updateSunkShip;
@@ -79,7 +72,7 @@ function GameFlow(playerOne, playerTwo) {
     };
   };
   const playerRound = (player, clickedNum) => {
-    console.log(isGameEnd);
+    console.log(clickedNum);
     if (isGameEnd === true) {
       return;
     }
@@ -88,16 +81,20 @@ function GameFlow(playerOne, playerTwo) {
     //attack opponent board by changing turn to gt opponent board
     changeTurn();
     getPlayer().board.receiveAttack(coordinate);
-    declareWinner(getPlayer());
+    // declareWinner(getPlayer());
     changeTurn();
-    printNewBoard();
+
     declareWinner(player);
+    printNewBoard();
 
     if (winnerMsg.length > 0) {
+      console.log(player);
       winnerModal(winnerMsg.pop());
       const modal = document.querySelector("[data-winner-modal]");
       modal.showModal();
       isGameEnd = true;
+      playerOne = null;
+      playerTwo = null;
     } else {
       changeTurn();
     }
@@ -165,10 +162,8 @@ function screenController(playerOne, playerTwo, soloPlayer) {
   const secondPlayerShips = document.querySelector(".player-two-mini-ships");
   firstPlayerShips.textContent = "";
   secondPlayerShips.textContent = "";
-
   drawMiniShips(firstPlayerShips, playerOne.name);
   drawMiniShips(secondPlayerShips, playerTwo.name);
-
   const updateScreen = () => {
     playerOneShipsBoard.textContent = "";
     playerOneStrikeBoard.textContent = "";
@@ -218,17 +213,47 @@ function screenController(playerOne, playerTwo, soloPlayer) {
   //initial render
   updateScreen();
 }
+//intro page
 
+function introPage() {
+  const pageHolder = document.createElement("div");
+  pageHolder.setAttribute("class", "intro-page");
+  const header = document.createElement("div");
+  header.setAttribute("class", "logo-holder");
+  const title = document.createElement("h1");
+  title.textContent = "BattleShip";
+
+  const btnHolder = document.createElement("div");
+  btnHolder.setAttribute("class", "game-options");
+
+  const singlePlayerBtn = document.createElement("button");
+  singlePlayerBtn.textContent = "single-player";
+  singlePlayerBtn.setAttribute("class", "single-player-btn");
+  singlePlayerBtn.classList.add("game-option-btns");
+
+  const multiPlayerBtn = document.createElement("button");
+  multiPlayerBtn.textContent = "You vs Friend";
+  multiPlayerBtn.setAttribute("class", "multi-players-btn");
+  multiPlayerBtn.classList.add("game-option-btns");
+
+  header.appendChild(title);
+  btnHolder.appendChild(singlePlayerBtn);
+  btnHolder.appendChild(multiPlayerBtn);
+  pageHolder.appendChild(header);
+  pageHolder.appendChild(btnHolder);
+
+  return pageHolder;
+}
 //screenController();
 function drawFirstPage() {
   const pageContainer = document.querySelector("[data-page-container]");
   pageContainer.appendChild(introPage());
   const logoDiv = document.querySelector(".logo-holder");
   const tittle = document.querySelector("h1");
-  //setTimeout(() => {
-  tittle.classList.add("logo");
-  logoDiv.classList.add("header");
-  //}, 0);
+  setTimeout(() => {
+    tittle.classList.add("logo");
+    logoDiv.classList.add("header");
+  }, 0);
 }
 //draw ship placement page
 function templateShipGrid(element) {
@@ -347,7 +372,7 @@ function countdown() {
     setTimeout(countdown, 1000);
   }
 }
-//function to daraw mini ships to show ship  sunk state by creating class name using player name to update
+//function to draw mini ships to show ship  sunk state by creating class name using player name to update
 function drawMiniShips(ele, player) {
   const miniFleets = `
   <div class="fleet-holder ${player}">
@@ -400,7 +425,7 @@ function formTemplate(ele) {
     required
   />
   <label for="player-one-name" class="player-one-label"
-    >Player-One:</label
+    >Player-One-Name:</label
   >
 </div>
 <div class="input-holder">
@@ -412,43 +437,82 @@ function formTemplate(ele) {
     required
   />
   <label for="player-two-name" class="player-two-label" data-playerTwo
-    >Player-Two:</label
+    >Player Two Name:</label
   >
 </div>
-<button data-submit-name >Start</button>
+<button data-submit-name class="submit-btn" >Start</button>
 </form>`;
   ele.innerHTML = template;
 }
+const pickedNum = [];
 function computerMove(player) {
-  const pickedNum = [];
-  const adjacentSlot = player.board.hitShots;
-  const lastMove = pickedNum[pickedNum.length - 1];
-  /* if (isHit === true) {
-    //update slot
-    spotToHit();
-    return adjacentSlot.pop();
-  } else if (isHit === false) {*/
-  return randomSpot();
-  // }
+  return computerSlot();
+  function computerSlot() {
+    const nextHits = [];
+    const hits = player.board.hitShots;
+    const lastHit = hits[hits.length - 1];
+    let neighborSlots = [];
+    if (hits.length > 0) {
+      hits.forEach((hit) => {
+        adjacentSlot(hit);
+        validSpot();
+      });
 
-  function randomSpot() {
-    const move = randomNum(100);
-    if (pickedNum.includes(move) === false) {
+      //if better slot are already picked tun to random spot
+      if (nextHits.length === 0) {
+        const move = randomSpot();
+        pickedNum.push(move);
+        return move;
+      } else {
+        let nextTry = nextHits[nextHits.length - 1];
+        pickedNum.push(nextTry);
+        nextTry = null;
+        return nextHits.pop();
+      }
+    } else if (nextHits.length === 0 && hits.length === 0) {
+      const move = randomSpot();
+      pickedNum.push(move);
       return move;
-    } else {
-      return randomNum(100);
     }
-  }
-  //function that update if we get hit the  store next and previous spot from a hit  to hit again
-  function spotToHit() {
-    const playerHits = player.board.hitShots;
-    const hitNextSpot = playerHits + 1;
-    const hitPrevSpot = lastMove - 1;
-    if (pickedNum.includes(hitNextSpot) === false && hitNextSpot < 100) {
-      adjacentSlot.push(hitNextSpot);
+
+    //method that verify adjacent slot is not picked already and put the new one in the queue
+    function validSpot() {
+      if (neighborSlots.length === 0) return;
+      const allSpots = player.board.inverseHashMap;
+      neighborSlots.forEach((coordinate) => {
+        //turn coordinate to number using hasmap
+        const spot = allSpots.get(coordinate.toString());
+        if (pickedNum.includes(spot) === false) {
+          nextHits.push(spot);
+        }
+      });
+      neighborSlots = [];
     }
-    if (pickedNum.includes(hitPrevSpot) === false && hitPrevSpot >= 0) {
-      adjacentSlot.push(hitPrevSpot);
+    //method that generate neighbor spot from given coordinate
+    function adjacentSlot(hit) {
+      const x = hit[0];
+      const y = hit[1];
+      if (x + 1 < 10) {
+        neighborSlots.push([x + 1, y]);
+      }
+      if (x - 1 >= 0) {
+        neighborSlots.push([x - 1, y]);
+      }
+      if (y + 1 < 10) {
+        neighborSlots.push([x, y + 1]);
+      }
+      if (y - 1 >= 0) {
+        neighborSlots.push([x, y - 1]);
+      }
+    }
+    //method return random number from 0 to 100
+    function randomSpot() {
+      const move = randomNum(100);
+      if (pickedNum.includes(move) === false) {
+        return move;
+      } else {
+        return randomSpot();
+      }
     }
   }
   //pick random number from board
@@ -469,4 +533,5 @@ export {
   drawBoard,
   dragShips,
   formTemplate,
+  introPage,
 };
