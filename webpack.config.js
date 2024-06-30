@@ -3,14 +3,18 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 
 module.exports = {
   mode: "development",
+
   entry: {
     index: "./src/index.js",
-    print: "./src/utility.js",
   },
   devtool: "inline-source-map",
   plugins: [
     new HtmlWebpackPlugin({
+      hash: true,
       title: "Battleship",
+      template: "./src/template.html",
+      chunks: ["index"],
+      filename: "index.html",
     }),
   ],
   output: {
@@ -25,6 +29,11 @@ module.exports = {
         use: ["style-loader", "css-loader"],
       },
       {
+        test: /\.(woff|woff2|eot|ttf|otf)$/i,
+        type: "asset/resource",
+      },
+
+      {
         test: /\.(?:js|mjs|cjs)$/,
         exclude: /node_modules/,
         use: {
@@ -33,6 +42,10 @@ module.exports = {
             presets: [["@babel/preset-env", { targets: "defaults" }]],
           },
         },
+      },
+      {
+        test: /\.html$/i,
+        loader: "html-loader",
       },
     ],
   },
