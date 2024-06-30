@@ -5,17 +5,58 @@
   font-weight: 400;
   src: url("./assets/fonts/graduate-v17-latin-regular.woff2") format("woff2");
 }
+/* archivo-black-regular - latin */
+@font-face {
+  font-display: swap;
+  font-family: "Archivo Black";
+  font-style: normal;
+  font-weight: 400;
+  src: url("./assets/fonts/archivo-black-v21-latin-regular.woff2")
+    format("woff2");
+}
+/* nanum-gothic-coding-regular - latin */
+@font-face {
+  font-display: swap;
+  font-family: "Nanum Gothic Coding";
+  font-style: normal;
+  font-weight: 300;
+  src: url("./assets/fonts/nanum-gothic-coding-v21-latin-regular.woff2")
+    format("woff2");
+}
+/* germania-one-regular - latin */
+@font-face {
+  font-display: swap;
+  font-family: "Germania One";
+  font-style: normal;
+  font-weight: 400;
+  src: url("./assets/fonts/germania-one-v20-latin-regular.woff2")
+    format("woff2");
+}
+/* share-tech-mono-regular - latin */
+@font-face {
+  font-display: swap;
+  font-family: "Share Tech Mono";
+  font-style: normal;
+  font-weight: 400;
+  src: url("./assets/fonts/share-tech-mono-v15-latin-regular.woff2")
+    format("woff2");
+}
 * {
   margin: 0;
 }
 body {
   width: 100vw;
   min-height: 100vh;
-  background-color: #002849;
+  background-color: #000000;
+  background-image: url(./assets/images/set-ships.jpg);
+  font-family: "Graduate", "Share Tech Mono", "Germania One";
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: inherit;
 }
-main {
-  height: 100vh;
-  width: 100vw;
+button {
+  cursor: pointer;
+  letter-spacing: 1px;
 }
 /*intro page*/
 .intro-page {
@@ -23,7 +64,7 @@ main {
   flex-direction: column;
   gap: 20%;
   background-color: black;
-  height: 100%;
+  height: 100vh;
   font-family: Arial, Helvetica, sans-serif;
   background-image: url("./assets/images/ships.jpg");
   background-repeat: no-repeat;
@@ -39,6 +80,48 @@ main {
   align-items: center;
   transition: all ease-in-out 2s;
 }
+.logo {
+  font-family: "Archivo Black";
+  letter-spacing: 0.3rem;
+  font-size: 2rem;
+  font-weight: 300;
+  text-shadow: 0 1px blue;
+  transition: all ease-in-out 2s;
+}
+.logo:hover {
+  color: yellow;
+  transform: scale(1.2);
+}
+.game-options {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+}
+.game-option-btns {
+  padding: 1rem;
+  border: 2px solid white;
+  border-radius: 0.3rem;
+  font-size: 1.2rem;
+  font-weight: 600;
+  font-family: "Nanum Gothic Coding";
+  text-shadow: -1px -2px 2px #0000007d;
+  transition: all ease-in-out 1s;
+  letter-spacing: 0.2rem;
+}
+.game-option-btns:hover {
+  border: 2px solid rgb(0, 0, 0);
+}
+.multi-players-btn {
+  background-color: rgb(203, 226, 4);
+  color: rgb(0, 0, 0);
+}
+.single-player-btn {
+  background-color: rgb(22, 145, 0);
+  color: aliceblue;
+}
+
 /*ship placement page*/
 .ships-grid {
   display: flex;
@@ -46,6 +129,11 @@ main {
   flex-direction: column;
   min-height: 100vh;
   background-color: rgb(3 30 70);
+}
+.drag-btn,
+.randomize-btn,
+.play-btn {
+  font-family: "Germania One";
 }
 
 .players-name {
@@ -64,6 +152,24 @@ main {
   align-items: center;
   flex-direction: column;
   font-family: "Graduate";
+}
+.counter {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30%;
+  border-radius: 1rem;
+  border: 0.2rem solid rgb(174, 0, 255);
+  color: brown;
+}
+.counter-board {
+  font-size: 4rem;
+}
+.msg-text {
+  color: beige;
+  font-size: 2rem;
+  padding: 0.5rem;
 }
 /*players board,mini ships board*/
 .players-board,
@@ -102,9 +208,12 @@ main {
   font-weight: 500;
 }
 /*form style*/
+input {
+  font-family: "Germania One";
+}
 .player-name-input {
   border: none;
-  padding: 0.7rem;
+  padding: 0.9rem;
   border-radius: 0.2rem;
   background-color: antiquewhite;
 }
@@ -118,7 +227,7 @@ main {
 .player-one-label {
   position: relative;
   bottom: 2.5rem;
-  left: 3rem;
+  left: 1rem;
   color: #60635f;
   transition: all 2s;
 }
@@ -137,10 +246,31 @@ form {
   opacity: 0.8;
   width: fit-content;
   padding: 2rem;
+  margin: auto;
+  margin-top: 1rem;
+  border-radius: 1rem;
   height: 350px;
   color: antiquewhite;
+  font-family: "Germania One";
 }
 .input-holder {
   display: flex;
   flex-direction: column;
+}
+.submit-btn {
+  padding: 0.4rem;
+  border-radius: 0.3rem;
+  border: none;
+  font-weight: 500;
+  font-family: "Germania One";
+}
+.submit-btn:hover {
+  background-color: yellow;
+}
+.player-turn {
+  text-align: center;
+  font-size: 1.5rem;
+  color: aliceblue;
+  background-color: #000000;
+  opacity: 0.8;
 }
