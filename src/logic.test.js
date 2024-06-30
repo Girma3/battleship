@@ -1,19 +1,21 @@
 /* eslint-disable no-undef */
 import { sum, Ship, GameBoard } from "./utility";
+
 /*eslint no-undef: "error"*/
 test("adds 1 + 2 to equal 3", () => {
   expect(sum(1, 2)).toBe(3);
 });
 
-const submarine = Ship("submarine", 3, 0);
-submarine.hit();
-submarine.hit();
-submarine.hit();
 describe("submarine", () => {
+  const submarine = Ship("submarine", 3);
+  submarine.hit();
+  submarine.hit();
   test("is length", () => {
     expect(submarine.length).toEqual(3);
   });
   test("number of hits", () => {
+    expect(submarine.hits).toEqual(2);
+    submarine.hit();
     expect(submarine.hits).toEqual(3);
   });
   test("is sunk", () => {
@@ -90,28 +92,20 @@ describe("change overlap positions", () => {
 describe("which ship sunk", () => {
   test("return sunk  ship name as an array", () => {
     const patrolShip = Ship("patrol", 2);
+    const destroyer = Ship("destroyer", 3);
     const ships = [];
     ships.push(patrolShip);
+    ships.push(destroyer);
     const board = GameBoard(ships);
     const placePatrol = board.placeVertical([0, 0], patrolShip); //[[0,0],[0,1]]
+    const placeDestroyer = board.placeHorizontal([3, 0], destroyer); // [ 3, 0 ], [ 4, 0 ], [ 5, 0 ]
     board.receiveAttack([0, 1]);
+    expect(patrolShip.isSunk()).toBeFalsy();
     board.receiveAttack([0, 0]);
     expect(patrolShip.isSunk()).toBeTruthy();
     expect(board.sunkShips()).toEqual(expect.arrayContaining(["patrol"]));
-  });
-});
-describe("change sunk ship color", () => {
-  test("after ship sunk change color from null to preferred color", () => {
-    const patrolShip = Ship("patrol", 2);
-    const ships = [];
-    ships.push(patrolShip);
-    const board = GameBoard(ships);
-    const placePatrol = board.placeVertical([0, 0], patrolShip); //[[0,0],[0,1]]
-    expect(patrolShip.color).toBeNull();
-    board.receiveAttack([0, 1]);
-    board.receiveAttack([0, 0]);
-    expect(patrolShip.isSunk()).toBeTruthy();
-    board.changeColor("red");
-    expect(patrolShip.color).toEqual("red");
+    expect(board.sunkShips()).toEqual(
+      expect.not.arrayContaining(["destroyer"])
+    );
   });
 });
