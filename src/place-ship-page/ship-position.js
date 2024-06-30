@@ -1,4 +1,3 @@
-import "./ships.css";
 import { GameBoard, Ship } from "../utility";
 function rePosition(player, shipsArray, ship) {
   //if the ship is length 2 buts it's position property
@@ -20,17 +19,11 @@ function placePlayerShipHorizontal(player, index, ship) {
   const convertIndex = coordinates.get(Number(index));
   const shipCells = player.board.placeVertical(convertIndex, ship);
   const takenCells = ship.positions;
-  console.log(shipCells);
-  console.log(ship.positions);
-  console.log(ship);
   if (ship.positions.length === 0) {
     //occupied return null
     if (shipCells === null) {
       player.board.placeRandom(ship);
-      console.log("null");
     }
-    console.log(ship);
-    console.log(shipCells);
   } else {
     rePosition(player, takenCells, ship);
   }
@@ -93,6 +86,7 @@ function getShipDirectionClass(element, name) {
   const shipDirection = directionClass[1];
   return shipDirection;
 }
+//flip the ship direction on click if it is valid
 function flip(e, newPlayer) {
   const ships = newPlayer.board.shipsArray;
   const ship = e.target;
@@ -148,7 +142,6 @@ function flip(e, newPlayer) {
 //get specific ship from ships object array
 function whichShipClicked(array, shipName) {
   let index = null;
-  console.log(array);
   array.forEach((ship) => {
     if ((ship.shipName.toString() === shipName.toString()) === true) {
       index = array.indexOf(ship);
@@ -169,8 +162,6 @@ function removeCoordinate(shipPosition, takenPositions) {
 }
 //check the cell is free
 function isCoordinateFree(shipPosition, takenPositions) {
-  console.log(shipPosition);
-  console.log(takenPositions);
   let result = true;
   shipPosition.forEach((cell) => {
     takenPositions.forEach((coordinate) => {
@@ -182,12 +173,11 @@ function isCoordinateFree(shipPosition, takenPositions) {
   });
   return result;
 }
-//draw dragged and dropped ships to initialize
+//draw dragged and dropped ships to initialize, it use ship object properties
 function drawShips(ships) {
   const divHolder = document.createElement("div");
   divHolder.setAttribute("class", "drop-ships");
   divHolder.style.display = "flex";
-  //divHolder.dataset = ships;
   ships.forEach((ship) => {
     const div = document.createElement("div");
     div.setAttribute("id", `${ship.shipName}`);
@@ -229,11 +219,21 @@ function dragShips(newPlayer, ships) {
     });
     square.addEventListener("drop", (e) => {
       drop(e, newPlayer);
-      //17 is all ship length sum ic can be changed here if ship added or reduced
-      if (newPlayer.board.shipsPositions.length === 17) {
+      const totalLength = newPlayer.board.shipsArray.reduce((total, ship) => {
+        return (total += ship.length);
+      }, 0);
+      //check all ship length sum is equal to total ship dropped and update player object
+      if (newPlayer.board.shipsPositions.length === totalLength) {
         playBtn.style.display = "block";
       }
     });
   });
 }
-export { drawGrids, dragShips };
+function randomlyPlaceShips(player) {
+  player.board.shipsArray.forEach((ship) => {
+    player.board.placeRandom(ship);
+  });
+  console.log(player);
+  return player;
+}
+export { drawGrids, dragShips, randomlyPlaceShips };
