@@ -16,9 +16,6 @@ let winnerMsg = [];
 
 function GameFlow(playerOne, playerTwo) {
   let isGameEnd = false;
-  console.log(playerOne);
-  console.log(playerTwo);
-  console.log(isGameEnd);
   const players = [playerOne, playerTwo];
   let activePlayer = players[0];
   const changeTurn = () => {
@@ -61,7 +58,6 @@ function GameFlow(playerOne, playerTwo) {
     };
   };
   const playerRound = (player, clickedNum) => {
-    console.log(clickedNum);
     if (isGameEnd === true) {
       return;
     }
@@ -75,7 +71,6 @@ function GameFlow(playerOne, playerTwo) {
     //printNewBoard();
     //announce winner if it found
     if (winnerMsg.length > 0) {
-      console.log(winnerMsg);
       winnerModal(winnerMsg.pop());
       const modal = document.querySelector("[data-winner-modal]");
       modal.showModal();
@@ -421,7 +416,6 @@ function fixTypo(playerOneName, playerTwoName) {
   const divArray = [...miniShipBoard];
   divArray[0].style.color = "#00ff3e";
   divArray[1].style.color = "#1fd1ce";
-  console.log(divArray[0].textContent);
   if (divArray[0].textContent !== "you") {
     divArray[0].textContent = `${playerOneName}'s fleet`;
     divArray[1].textContent = `${playerTwoName}'s fleet`;
