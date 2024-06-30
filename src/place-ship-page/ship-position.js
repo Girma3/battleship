@@ -233,7 +233,6 @@ function randomlyPlaceShips(player) {
   player.board.shipsArray.forEach((ship) => {
     player.board.placeRandom(ship);
   });
-  console.log(player);
   return player;
 }
 export { drawGrids, dragShips, randomlyPlaceShips };

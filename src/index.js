@@ -1,20 +1,16 @@
 import "./style.css";
-import "./first-page/first-page.css";
 import "./place-ship-page/ships.css";
-import "./pass-device/pass-screen.css";
-import { Ship, GameBoard, Player } from "./utility.js";
+import { Player } from "./utility.js";
+import { randomlyPlaceShips } from "./place-ship-page/ship-position.js";
 import {
   screenController,
   drawFirstPage,
   shipsPlacement,
-  drawGrids,
-  randomizeShips,
   randomPlacement,
-  ships,
-  drawBoard,
-  countDown,
-  counter,
-} from "./dom-stuff.js";
+  dragShips,
+  countdownModal,
+  formTemplate,
+} from "./dom-component.js";
 
 const singlePlayer = document.querySelector(
   "[data-game-option='single-player-btn]"
@@ -22,127 +18,161 @@ const singlePlayer = document.querySelector(
 const multiPlayers = document.querySelector(
   "[data-game-option='multi-players-btn]"
 );
-const placeShipPage = document.querySelector(".ships-grid");
-const firstPage = document.querySelector(".first-page");
-
+const pageContainer = document.querySelector("[data-page-container]");
 drawFirstPage();
-console.log("wait");
+let playerOneName;
+let playerTwoName;
+let firstPlayer;
+let secondPlayer;
 
-let playerOne;
-let playerTwo;
-const players = [];
-let count = 4;
+const hashmap = new Map();
+let soloPlayer = false;
+let isGameEnd = false;
+
 //setTimeout(() => {
 const multiPlayerBtn = document.querySelector(".multi-players-btn");
+const pass = document.querySelector(".pass");
 
-console.log(multiPlayerBtn);
-multiPlayerBtn.addEventListener("click", (e) => {
-  firstPage.style.display = "none";
+pageContainer.addEventListener("click", (e) => {
+  if (e.target.matches(".multi-players-btn")) {
+    soloPlayer = false;
+    formTemplate(pageContainer);
+  }
+  if (e.target.matches("[data-submit-name]")) {
+    e.preventDefault();
+    const playerOne = document.querySelector("[data-player-one]");
+    const playerTwo = document.querySelector("[data-player-two");
+    playerOneName = playerOne.value;
+    playerTwoName = playerTwo.value;
+    //return if players name same and empty
+    if (
+      playerOneName === "" ||
+      playerTwoName === "" ||
+      (playerOneName === playerTwoName) === true
+    ) {
+      return;
+    }
+    firstPlayer = Player(playerOneName);
+    secondPlayer = Player(playerTwoName);
+    countdownModal(`${playerOneName} set the ships`);
+    shipsPlacement(pageContainer);
+  }
+  if (e.target.matches("[data-random-btn")) {
+    putShips();
+  }
+  if (e.target.matches("[data-drop-btn]")) {
+    dragAndDrop();
+  }
+  if (e.target.matches(".play-btn")) {
+    pageContainer.textContent = "";
+    if (soloPlayer === false) {
+      countdownModal(`${playerTwoName} set the ships`);
+    }
+    shipsPlacement(pageContainer);
 
-  shipsPlacement(placeShipPage);
-  const shipBoard = document.querySelector(".board-container");
-  const playBtn = document.querySelector(".play-btn");
-  drawBoard(shipBoard);
-  putShips("girma");
-  function putShips(name) {
-    const randomizeBtn = document.querySelector("[data-random-btn]");
-    randomizeBtn.addEventListener("click", () => {
-      const xo = Player(name, ships);
-      //const kdot = Player("kdot", ships);
-      //const players = [xo, kdot];
-      const newPlayer = xo;
-      console.log(newPlayer);
-      randomPlacement(newPlayer);
-      console.log(newPlayer);
-      // playerOne = newPlayer;
-      playBtn.addEventListener("click", () => {
-        const passScreen = document.querySelector(".pass-screen");
-        players.push(newPlayer);
-        countDown(passScreen);
-        const dialog = document.querySelector("[data-countdown]");
-        // dialog.showModal();
-        countdown(dialog);
-        //repeat
-        //xo = null
-        drawBoard(shipBoard);
+    if (soloPlayer === true && hashmap.size === 0) {
+      //randomly place ai ships
+      randomlyPlaceShips(secondPlayer);
+      hashmap.set(playerOneName, firstPlayer);
+      hashmap.set(playerTwoName, secondPlayer);
+    }
 
-        console.log(players);
-        //dialog.close();
-      });
+    if (
+      hashmap.get(playerTwoName) !== undefined &&
+      hashmap.get(playerOneName) !== undefined
+    ) {
+      const playerOne = hashmap.get(playerOneName);
+      const playerTwo = hashmap.get(playerTwoName);
+      screenController(playerOne, playerTwo, soloPlayer);
+      pageContainer.textContent = "";
+    }
+    if (hashmap.size === 0) {
+      hashmap.set(playerOneName, firstPlayer);
+    }
+    if (hashmap.size > 0) {
+      hashmap.set(playerTwoName, secondPlayer);
+    }
+  }
+  if (e.target.matches(".single-player-btn")) {
+    soloPlayer = true;
+    playerOneName = "you";
+    playerTwoName = "ai";
+    firstPlayer = Player(playerOneName);
+    secondPlayer = Player(playerTwoName);
+    countdownModal("set the ships");
+    shipsPlacement(pageContainer);
+  }
+});
+const winnerMsg = document.querySelector(".winner-msg");
+winnerMsg.addEventListener("click", (e) => {
+  if (e.target.matches(".rematch-btn")) {
+    //reset the player and dom element
+    const modal = document.querySelector("[data-winner-modal]");
+    const boards = document.querySelectorAll(".grid");
+    const turnDiv = document.querySelector(".player-turn");
+    const dashBoard = document.querySelectorAll(".mini-dash-board");
+    const winnerDivHolder = document.querySelector(".winner-holder");
+    const winnerMsg = document.querySelector(".winner-board");
+    firstPlayer = null;
+    secondPlayer = null;
+    hashmap.clear();
+    firstPlayer = Player(playerOneName);
+    secondPlayer = Player(playerTwoName);
+    isGameEnd = false;
+    boards.textContent = "";
+    turnDiv.textContent = "";
+    dashBoard.forEach((div) => {
+      div.textContent = "";
     });
+    boards.forEach((board) => {
+      board.textContent = "";
+    });
+    winnerMsg.textContent = "";
+    winnerDivHolder.style.display = "none";
+    firstPlayer = Player(playerOneName);
+    secondPlayer = Player(playerTwoName);
+    modal.close();
+    pageContainer.textContent = "";
+    shipsPlacement(pageContainer);
   }
-  //shipsPlacement(placeShipPage);
-  //drawBoard(shipBoard);
-  console.log(players);
 });
-// Initialize count outside the function
-
-function updateCountdownUI() {
-  document.querySelector("[data-count-down]").textContent = count;
-  const dialog = document.querySelector("[data-countdown]");
-  if (count === 0) {
-    dialog.close();
-  } else {
-    dialog.showModal();
+//drag and drop ship based on solo or multi player
+function dragAndDrop() {
+  const shipsContainer = document.querySelector("[data-ships-container]");
+  shipsContainer.style.display = "flex";
+  if (hashmap.size < 1) {
+    if (firstPlayer.board.shipsPositions.length > 0) {
+      reposition();
+    }
+    dragShips(firstPlayer, firstPlayer.board.shipsArray);
+  }
+  if (hashmap.size > 1) {
+    if (secondPlayer.board.shipsPositions.length > 0) {
+      reposition();
+    }
+    dragShips(secondPlayer, secondPlayer.board.shipsArray);
   }
 }
-
-function countdown(dialog) {
-  if (count >= 0) {
-    updateCountdownUI(dialog); // Update UI
-    count--;
-    setTimeout(countdown, 1000);
+function reposition() {
+  if (firstPlayer.board.shipsPositions.length > 0) {
+    const xo = Player(playerOneName, firstPlayer.shipsArray);
+    // firstPlayer = null;
+    firstPlayer = xo;
+  }
+  if (secondPlayer.board.shipsPositions.length > 0) {
+    const xo = Player(playerTwoName, secondPlayer.shipsArray);
+    //secondPlayer = null;
+    secondPlayer = xo;
   }
 }
-
-// Call the countdown function to start
-
-//shipBoard.appendChild(drawGrids());
-//randomizeShips(newPlayer);
-/*
-const playBtn = document.querySelector(".play-btn");
-playBtn.addEventListener("click", () => {
-  newPlayer = getPlayer(newPlayer);
-  console.log(newPlayer);
-  
-});
-*/
-//}, 0);
-
-//screenController();
-
-//draw the bard for players
-/*
-const firstBoards = document.querySelector(".board-one");
-const secondBoards = document.querySelector(".board-two");
-const thirdBoards = document.querySelector(".board-three");
-const fourthBoards = document.querySelector(".board-four");
-const playerOneName = document.querySelector(".player-one");
-const playerTwoName = document.querySelector(".player-two");
-
-firstBoards.appendChild(drawBoard("gridOne"));
-secondBoards.appendChild(drawBoard("gridTwo"));
-thirdBoards.appendChild(drawBoard("gridThree"));
-fourthBoards.appendChild(drawBoard("gridFour"));
-const screen = controller();
-//screen.playerOneShips;
-//thirdBoard.appendChild(screen.secondBoard);
-//fourthBoard.appendChild(screen.strikeBoardTwo);
-secondBoards.addEventListener("click", (e) => {
-  const index = e.target.dataset.gridTwo;
-  const turn = 1;
-  attack(index, turn);
-});
-fourthBoards.addEventListener("click", (e) => {
-  const index = e.target.dataset.gridFour;
-  const turn = 2;
-  attack(index, turn);
-});
-//secondBoard.appendChild(drawBoard());
-const firstPlayer = ("me");
-const secondPlayer = playGame("king");
-playerOne.textContent = "";
-playerTwo.textContent = "king";
-
-//secondBoard.appendChild(drawBoard());
-*/
+function putShips() {
+  const shipsContainer = document.querySelector("[data-ships-container]");
+  shipsContainer.style.display = "none";
+  if (hashmap.size < 1) {
+    reposition();
+    randomPlacement(firstPlayer);
+  } else if (hashmap.size > 0) {
+    reposition();
+    randomPlacement(secondPlayer);
+  }
+}

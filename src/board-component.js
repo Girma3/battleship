@@ -1,23 +1,3 @@
-import { Ship, Player } from "./utility";
-
-//position ships randomly
-const carrier = Ship("carrier", 5);
-const battleShip = Ship("battleShip", 4);
-const destroyer = Ship("destroyer", 3);
-const submarine = Ship("submarine", 3);
-const patrol = Ship("patrol", 2);
-//
-const ships = [carrier, battleShip, destroyer, submarine, patrol];
-const playerOne = Player("kings", ships);
-const playerTwo = Player("cold", ships);
-//
-
-function initialBoard(player) {
-  ships.forEach((ship) => {
-    player.board.placeRandom(ship);
-  });
-}
-
 //function draw ships with hit and miss for the owner
 function firstBoard(shipCoordinate, hit, miss) {
   // Create a 2D grid of cells
@@ -45,14 +25,12 @@ function firstBoard(shipCoordinate, hit, miss) {
   // Create a container for the grid
   const grids = document.createElement("div");
   grids.classList.add("board");
-
   // Create buttons for each cell
   for (let i = 0; i < 100; i++) {
     const button = document.createElement("button");
     button.textContent = cells[Math.floor(i / 10)][i % 10];
     button.dataset.index = i;
     button.classList.add("grid-cell");
-
     if (cells[Math.floor(i / 10)][i % 10] === "ship") {
       button.textContent = "";
       button.classList.add("ship");
@@ -75,7 +53,6 @@ function firstBoard(shipCoordinate, hit, miss) {
     }
     grids.appendChild(button);
   }
-
   return grids;
 }
 //function  draw miss and hit and revel ship if it hit used to
@@ -106,7 +83,6 @@ function strikeBoard(shipCoordinate, hit, miss) {
   // Create a container for the grid
   const grids = document.createElement("div");
   grids.classList.add("board");
-
   // Create buttons for each cell
   for (let i = 0; i < 100; i++) {
     const button = document.createElement("button");
@@ -128,10 +104,8 @@ function strikeBoard(shipCoordinate, hit, miss) {
     } else if (cells[Math.floor(i / 10)][i % 10] === "ship") {
       button.textContent = "";
     }
-
     grids.appendChild(button);
   }
-
   return grids;
 }
 //draw 10 X 10 board
@@ -146,5 +120,4 @@ function drawGrids() {
   }
   return grid;
 }
-
 export { firstBoard, strikeBoard, drawGrids };
