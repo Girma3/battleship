@@ -137,32 +137,52 @@ function screenController(playerOne, playerTwo, soloPlayer) {
   const secondPlayerShips = document.querySelector(".player-two-mini-ships");
   firstPlayerShips.textContent = "";
   secondPlayerShips.textContent = "";
+  //const playerOneFirstChar = playerOne.name.charAt(0);
+  //const playerTwoFirstChar = playerTwo.name.charAt(0);
 
   const updateScreen = () => {
+    const playerOneFirstChar = playerOne.name.charAt(0);
+    const playerTwoFirstChar = playerTwo.name.charAt(0);
     if (game.isGameEnd === true) {
       return;
     }
-    drawMiniShips(firstPlayerShips, playerOne.name);
-    drawMiniShips(secondPlayerShips, playerTwo.name);
-    turn.textContent = `${game.getPlayer().name}'s turn`;
+    //method to change and update player fleet based on current player for the mini fleet
+    const buildDashboard = () => {
+      if (game.getPlayer().name === playerOne.name) {
+        drawMiniShips(firstPlayerShips, playerOneFirstChar);
+        drawMiniShips(secondPlayerShips, playerTwoFirstChar);
+      } else {
+        drawMiniShips(firstPlayerShips, playerTwoFirstChar);
+        drawMiniShips(secondPlayerShips, playerOneFirstChar);
+      }
+    };
+    buildDashboard();
 
+    turn.textContent = `${game.getPlayer().name}'s turn`;
     playerOneShipsBoard.textContent = "";
     playerOneStrikeBoard.textContent = "";
 
-    const playerOneName = game.printNewBoard().currentPlayerName;
-    const playerTwoName = game.printNewBoard().opponentName;
-    const playerOneSunkShips = game.printNewBoard().currentPlayerShipState;
-    const playerTwoSunkShips = game.printNewBoard().opponentPlayerShipState;
     //grab all mini ship by using player name
-    const playerOneDashBoard = document.querySelector(`.${playerOneName}`);
+    const playerOneDashBoard = document.querySelector(`.${playerOneFirstChar}`);
     const PlayerOneMiniShips =
       playerOneDashBoard.querySelectorAll(".mini-ship-size");
-    const playerTwoDashBoard = document.querySelector(`.${playerTwoName}`);
+    const playerTwoDashBoard = document.querySelector(`.${playerTwoFirstChar}`);
     const playerTwoMiniShips =
       playerTwoDashBoard.querySelectorAll(".mini-ship-size");
     //update mini ships if it hit
-    updateMiniShips(PlayerOneMiniShips, playerOneSunkShips, "red");
-    updateMiniShips(playerTwoMiniShips, playerTwoSunkShips, "red");
+    const playerOneSunkShips = game.printNewBoard().currentPlayerShipState;
+    const playerTwoSunkShips = game.printNewBoard().opponentPlayerShipState;
+    //method to update ships based on current player
+    const updateDashBoard = () => {
+      if (game.getPlayer.name === playerOne.name) {
+        updateMiniShips(PlayerOneMiniShips, playerOneSunkShips, "red");
+        updateMiniShips(playerTwoMiniShips, playerTwoSunkShips, "red");
+      } else {
+        updateMiniShips(PlayerOneMiniShips, playerOneSunkShips, "red");
+        updateMiniShips(playerTwoMiniShips, playerTwoSunkShips, "red");
+      }
+    };
+    updateDashBoard();
     //update the boards
     playerOneShipsBoard.appendChild(
       game.printNewBoard().currentPlayerShipBoard
@@ -171,7 +191,7 @@ function screenController(playerOne, playerTwo, soloPlayer) {
     if (soloPlayer === false) {
       countdownModal(`Pass the device to ${game.getPlayer().name}`);
     }
-    fixTypo(playerOneName, playerTwoName);
+    fixTypo(playerOne.name, playerTwo.name);
   };
   function clickHandler(e) {
     const player = game.getPlayer();
