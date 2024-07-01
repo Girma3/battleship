@@ -1,3 +1,5 @@
+//import { ships } from "./dom-stuff";
+
 /**
  *ship  has name,length and hits,position as property and isSunk and hit as method
  *ship.position - is an array that hold coordinates of the ship.
@@ -8,7 +10,6 @@
  */
 function Ship(shipName, length) {
   const hits = 0;
-  const color = null;
   function hit() {
     this.hits++;
   }
@@ -23,7 +24,6 @@ function Ship(shipName, length) {
     positions: [],
     hit,
     isSunk,
-    color,
   };
 }
 /**
@@ -102,7 +102,6 @@ function GameBoard(shipsArray) {
 
   function placeVertical(coordinate, ship) {
     const shipCells = Position(coordinate, ship.length).vertical;
-    console.log(isCoordinateFree(shipCells, shipsPositions));
     if (isCoordinateFree(shipCells, shipsPositions) === false) return null;
     twoDimensionArray(shipCells, shipsPositions);
     twoDimensionArray(shipCells, ship.positions);
@@ -115,18 +114,7 @@ function GameBoard(shipsArray) {
     twoDimensionArray(shipCells, ship.positions);
     return shipCells;
   }
-  function changeOverLapPositions(coordinate) {
-    const findEmptyCell = coordinate;
-    const xCoordinate = coordinate[0];
-    const ycoordinate = coordinate[1];
-    if (checkCoordinate(coordinate, shipsPositions) === false) {
-      //add 1 to ycoordinate and check recursively if true return that coordinate
-      // and add 1 to make gap ane return that coordinate
-      return coordinate;
-    } else {
-      return changeOverLapPositions([xCoordinate + 1, y]);
-    }
-  }
+
   function randomFreeCoordinate() {
     const randomNum = randomCell(100);
     const relatedCoordinate = coordinatesHashMap.get(randomNum);
@@ -140,11 +128,11 @@ function GameBoard(shipsArray) {
     return Math.floor(Math.random() * num);
   }
 
-  function isCoordinateFree(array, arrayTwo) {
+  function isCoordinateFree(shipPosition, takenPositions) {
     let result = true;
-    arrayTwo.forEach((inner) => {
-      array.forEach((number) => {
-        if ((number.toString() === inner.toString()) === true) {
+    shipPosition.forEach((cell) => {
+      takenPositions.forEach((coordinate) => {
+        if (cell.toString() === coordinate.toString()) {
           result = false;
           return result;
         }
@@ -172,7 +160,6 @@ function GameBoard(shipsArray) {
       const result = isCoordinateFree(spaceTaken, shipsPositions);
 
       if (result === true) {
-        console.log(result);
         return spaceTaken;
       } else if (result === false) {
         return randomlyPosition(shipLength);
@@ -209,8 +196,8 @@ function GameBoard(shipsArray) {
       shipsArray.forEach((ship) => {
         if (checkCoordinate(coordinate, ship.positions) === true) {
           ship.hit();
-          hitShots.push(coordinate);
 
+          hitShots.push(coordinate);
           return;
         }
       });
@@ -236,13 +223,7 @@ function GameBoard(shipsArray) {
     });
     return result;
   }
-  function changeColor(color) {
-    shipsArray.forEach((ship) => {
-      if (ship.isSunk() === true) {
-        ship.color = color;
-      }
-    });
-  }
+
   return {
     placeVertical,
     placeHorizontal,
@@ -251,23 +232,99 @@ function GameBoard(shipsArray) {
     isHit,
     isSunk,
     sunkShips,
-    changeColor,
     coordinatesHashMap,
     inverseHashMap,
     missedShots,
     hitShots,
     shipsPositions,
+    shipsArray,
   };
 }
-function Player(name, ships) {
+function Player(name) {
+  const carrier = Ship("carrier", 5);
+  const battleShip = Ship("battleShip", 4);
+  const destroyer = Ship("destroyer", 3);
+  const submarine = Ship("submarine", 3);
+  const patrol = Ship("patrol", 2);
+  const ships = [carrier, submarine, battleShip, destroyer, patrol];
   const board = GameBoard(ships);
   return {
     board,
     name,
   };
 }
+//computer move function that return number not picked and try adjacent slot if it hit other ship
+const pickedNum = [];
+function computerMove(player) {
+  return computerSlot();
+  function computerSlot() {
+    const nextHits = [];
+    const hits = player.board.hitShots;
+    let neighborSlots = [];
+    if (hits.length > 0) {
+      hits.forEach((hit) => {
+        adjacentSlot(hit);
+        validSpot();
+      });
 
+      //if better slot are already picked tun to random spot
+      if (nextHits.length === 0) {
+        const move = randomSpot();
+        pickedNum.push(move);
+        return move;
+      } else {
+        let nextTry = nextHits[nextHits.length - 1];
+        pickedNum.push(nextTry);
+        nextTry = null;
+        return nextHits.pop();
+      }
+    } else if (nextHits.length === 0 && hits.length === 0) {
+      const move = randomSpot();
+      pickedNum.push(move);
+      return move;
+    }
+
+    //method that verify adjacent slot is not picked already and put the new one in the queue
+    function validSpot() {
+      if (neighborSlots.length === 0) return;
+      const allSpots = player.board.inverseHashMap;
+      neighborSlots.forEach((coordinate) => {
+        //turn coordinate to number using hasmap
+        const spot = allSpots.get(coordinate.toString());
+        if (pickedNum.includes(spot) === false) {
+          nextHits.push(spot);
+        }
+      });
+      neighborSlots = [];
+    }
+    //method that generate neighbor spot from given coordinate
+    function adjacentSlot(hit) {
+      const x = hit[0];
+      const y = hit[1];
+      if (x + 1 < 10) {
+        neighborSlots.push([x + 1, y]);
+      }
+      if (x - 1 >= 0) {
+        neighborSlots.push([x - 1, y]);
+      }
+      if (y + 1 < 10) {
+        neighborSlots.push([x, y + 1]);
+      }
+      if (y - 1 >= 0) {
+        neighborSlots.push([x, y - 1]);
+      }
+    }
+    //method return random number from 0 to 100
+    function randomSpot() {
+      let move;
+      do {
+        move = Math.floor(Math.random() * 100);
+      } while (pickedNum.includes(move));
+      return move;
+    }
+  }
+}
 function sum(a, b) {
   return a + b;
 }
-export { sum, Ship, GameBoard, Player };
+export { sum, Ship, GameBoard, Player, computerMove };
