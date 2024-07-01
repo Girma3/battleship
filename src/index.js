@@ -114,7 +114,6 @@ winnerMsg.addEventListener("click", (e) => {
     hashmap.clear();
     firstPlayer = Player(playerOneName);
     secondPlayer = Player(playerTwoName);
-    isGameEnd = false;
     boards.textContent = "";
     turnDiv.textContent = "";
     dashBoard.forEach((div) => {
@@ -129,6 +128,7 @@ winnerMsg.addEventListener("click", (e) => {
     secondPlayer = Player(playerTwoName);
     modal.close();
     pageContainer.textContent = "";
+    boardWrapper.style.display = "none";
     shipsPlacement(pageContainer);
   }
 });
