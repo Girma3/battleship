@@ -12,6 +12,7 @@ module.exports = {
     new HtmlWebpackPlugin({
       hash: true,
       title: "Battleship",
+      favicon: "./src/assets/fonts/favicon.ico",
       template: "./src/template.html",
       chunks: ["index"],
       filename: "index.html",
