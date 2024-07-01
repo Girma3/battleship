@@ -12,30 +12,20 @@ import {
   formTemplate,
 } from "./dom-component.js";
 
-const singlePlayer = document.querySelector(
-  "[data-game-option='single-player-btn]"
-);
-const multiPlayers = document.querySelector(
-  "[data-game-option='multi-players-btn]"
-);
 const pageContainer = document.querySelector("[data-page-container]");
+const boardWrapper = document.querySelector(".game-wrapper");
 drawFirstPage();
 let playerOneName;
 let playerTwoName;
 let firstPlayer;
 let secondPlayer;
-
+//store players object in hashmap
 const hashmap = new Map();
 let soloPlayer = false;
-let isGameEnd = false;
-
-//setTimeout(() => {
-const multiPlayerBtn = document.querySelector(".multi-players-btn");
-const pass = document.querySelector(".pass");
-
 pageContainer.addEventListener("click", (e) => {
   if (e.target.matches(".multi-players-btn")) {
     soloPlayer = false;
+    boardWrapper.style.display = "none";
     formTemplate(pageContainer);
   }
   if (e.target.matches("[data-submit-name]")) {
@@ -65,8 +55,10 @@ pageContainer.addEventListener("click", (e) => {
   }
   if (e.target.matches(".play-btn")) {
     pageContainer.textContent = "";
+    boardWrapper.style.display = "block";
     if (soloPlayer === false) {
       countdownModal(`${playerTwoName} set the ships`);
+      boardWrapper.style.display = "none";
     }
     shipsPlacement(pageContainer);
 
@@ -85,6 +77,7 @@ pageContainer.addEventListener("click", (e) => {
       const playerTwo = hashmap.get(playerTwoName);
       screenController(playerOne, playerTwo, soloPlayer);
       pageContainer.textContent = "";
+      boardWrapper.style.display = "block";
     }
     if (hashmap.size === 0) {
       hashmap.set(playerOneName, firstPlayer);
@@ -101,6 +94,7 @@ pageContainer.addEventListener("click", (e) => {
     secondPlayer = Player(playerTwoName);
     countdownModal("set the ships");
     shipsPlacement(pageContainer);
+    boardWrapper.style.display = "none";
   }
 });
 const winnerMsg = document.querySelector(".winner-msg");
