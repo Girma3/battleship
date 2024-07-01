@@ -15,6 +15,7 @@ import {
 const pageContainer = document.querySelector("[data-page-container]");
 const boardWrapper = document.querySelector(".game-wrapper");
 drawFirstPage();
+boardWrapper.style.display = "none";
 let playerOneName;
 let playerTwoName;
 let firstPlayer;
@@ -32,8 +33,9 @@ pageContainer.addEventListener("click", (e) => {
     e.preventDefault();
     const playerOne = document.querySelector("[data-player-one]");
     const playerTwo = document.querySelector("[data-player-two");
-    playerOneName = playerOne.value;
-    playerTwoName = playerTwo.value;
+    //avoid space for creating class  later for fleet dash board
+    playerOneName = playerOne.value.replace(/\s/g, "");
+    playerTwoName = playerTwo.value.replace(/\s/g, "");
     //return if players name same and empty
     if (
       playerOneName === "" ||
@@ -76,8 +78,8 @@ pageContainer.addEventListener("click", (e) => {
       const playerOne = hashmap.get(playerOneName);
       const playerTwo = hashmap.get(playerTwoName);
       screenController(playerOne, playerTwo, soloPlayer);
-      pageContainer.textContent = "";
       boardWrapper.style.display = "block";
+      pageContainer.textContent = "";
     }
     if (hashmap.size === 0) {
       hashmap.set(playerOneName, firstPlayer);
