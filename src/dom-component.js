@@ -68,7 +68,7 @@ function GameFlow(playerOne, playerTwo) {
     declareWinner(getPlayer());
     changeTurn();
     declareWinner(player);
-    //printNewBoard();
+    printNewBoard();
     //announce winner if it found
     if (winnerMsg.length > 0) {
       winnerModal(winnerMsg.pop());
@@ -128,8 +128,8 @@ function GameFlow(playerOne, playerTwo) {
   };
 }
 // function that update the screen using game flow function
-function screenController(playerOne, playerTwo, soloPlayer) {
-  const game = GameFlow(playerOne, playerTwo);
+function screenController(playerOne, playerTwo, soloPlayer, isGameEnd) {
+  const game = GameFlow(playerOne, playerTwo, isGameEnd);
   const turn = document.querySelector(".player-turn");
   const playerOneShipsBoard = document.querySelector(".board-one");
   const playerOneStrikeBoard = document.querySelector(".board-two");
