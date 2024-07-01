@@ -11,9 +11,6 @@
   "author": "",
   "license": "ISC",
   "description": "",
-  "dependencies": {
-    "webpack-cli": "^5.1.4"
-  },
   "devDependencies": {
     "@babel/core": "^7.24.7",
     "@babel/plugin-transform-modules-commonjs": "^7.24.7",
@@ -29,6 +26,7 @@
     "jest": "^29.7.0",
     "prettier": "3.2.5",
     "style-loader": "^4.0.0",
-    "webpack": "^5.91.0"
+    "webpack": "^5.92.1",
+    "webpack-cli": "^5.1.4"
   }
 }
