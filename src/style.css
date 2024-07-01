@@ -49,7 +49,8 @@ body {
   min-height: 100vh;
   background-color: #000000;
   background-image: url(./assets/images/set-ships.jpg);
-  font-family: "Graduate", "Share Tech Mono", "Germania One";
+  font-family: "Graduate", "Share Tech Mono", "Germania One", monospace, Arial,
+    Helvetica, sans-serif;
   background-position: center;
   background-repeat: no-repeat;
   background-size: inherit;
@@ -72,7 +73,7 @@ button {
   background-size: cover;
 }
 .header {
-  padding: 1rem;
+  padding: 1.5rem;
   background-color: rgb(15, 15, 15);
   color: aliceblue;
   display: flex;
@@ -80,10 +81,11 @@ button {
   align-items: center;
   transition: all ease-in-out 2s;
 }
+
 .logo {
   font-family: "Archivo Black";
   letter-spacing: 0.3rem;
-  font-size: 2rem;
+  font-size: 2.3rem;
   font-weight: 300;
   text-shadow: 0 1px blue;
   transition: all ease-in-out 2s;
@@ -172,13 +174,17 @@ button {
   padding: 0.5rem;
 }
 /*players board,mini ships board*/
+
 .players-board,
 .mini-ship-holder {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  justify-items: center;
+  display: flex;
+  justify-content: space-evenly;
   background-color: #292929;
+  flex-wrap: wrap;
+  align-items: center;
+  padding: 0.4rem;
 }
+
 /*winner modal*/
 .winner-board {
   background-color: antiquewhite;
@@ -226,7 +232,7 @@ input {
 .player-two-label,
 .player-one-label {
   position: relative;
-  bottom: 2.5rem;
+  bottom: 2.8rem;
   left: 1rem;
   color: #60635f;
   transition: all 2s;
@@ -251,7 +257,7 @@ form {
   border-radius: 1rem;
   height: 350px;
   color: antiquewhite;
-  font-family: "Germania One";
+  font-family: "Germania One", monospace;
 }
 .input-holder {
   display: flex;
@@ -273,4 +279,5 @@ form {
   color: aliceblue;
   background-color: #000000;
   opacity: 0.8;
+  padding: 0.5rem;
 }
