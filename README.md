@@ -23,19 +23,21 @@ the project contain these features:
 
 - use test driven development.
 - play with computer.
-- play on the same device with friend by passing it.
+- play on the same device by passing to current player turn.
 - place the ships by using drag and drop or randomly place ships by clicking button.
-- computer try to hit adjacent slot if it guess correct hit.
+- computer try to hit adjacent slots if it guess correct hit.
 
 ### Screenshot
 
-![current weather](/src/assets/images/current.png)
-![forcast](/src/assets/images/forcast.png)
+![intro=page](/src/assets/images/intro-page.webp)
+![set-ships](/src/assets/images/set-ships.jpg)
+![multi-player-form](/src/assets/images/form.webp)
+![game-state](/src/assets/images/two-players-state.webp)
 
 ### Links
 
-- Live Site URL: [https://girma3.github.io/weather-app/]
-- Solution URL: [https://github.com/Girma3/weather-app]
+- Live Site URL: []
+- Solution URL: []
 
 ## My process
 
