@@ -96,13 +96,14 @@ function flip(e, newPlayer) {
 
   if (shipDirection === "horizontal") {
     const result = positionTempShip(ships, index, "vertical", newPlayer);
-    if (result === true) {
+    if (result === true || result === undefined) {
       ship.classList.remove(`${shipName}-horizontal`);
       ship.classList.add(`${shipName}-vertical`);
     }
   } else if (shipDirection === "vertical") {
     const result = positionTempShip(ships, index, "horizontal", newPlayer);
-    if (result === true) {
+
+    if (result === true || result === undefined) {
       ship.classList.remove(`${shipName}-vertical`);
       ship.classList.add(`${shipName}-horizontal`);
     }
@@ -112,6 +113,8 @@ function flip(e, newPlayer) {
   //different positions(direction) and return boolean for each position and flip for valid direction
   function positionTempShip(ships, index, direction, player) {
     const firstCoordinate = ships[index].positions[0];
+    //when ship clicked outside the board return undefiend
+    if (firstCoordinate === undefined) return undefined;
     const tempShip = Ship(ships[index].shipName, ships[index].length);
     const tempShips = [];
     tempShips.push(tempShip);
