@@ -22,7 +22,7 @@
   align-items: center;
   flex-wrap: wrap;
   gap: 1rem;
-  width: 100%;
+  width: 80%;
   margin: auto;
   margin-top: 2px;
 }
@@ -113,7 +113,7 @@
   height: calc(6vmin * var(--height, 1));
   position: relative;
   right: 4px;
-  background-color: green;
+  background-color: rgb(1, 147, 1);
 }
 
 .target-dot {
