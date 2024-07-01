@@ -96,14 +96,14 @@ function flip(e, newPlayer) {
 
   if (shipDirection === "horizontal") {
     const result = positionTempShip(ships, index, "vertical", newPlayer);
-    if (result === true || result === undefined) {
+    if (result !==  false) {
       ship.classList.remove(`${shipName}-horizontal`);
       ship.classList.add(`${shipName}-vertical`);
     }
   } else if (shipDirection === "vertical") {
     const result = positionTempShip(ships, index, "horizontal", newPlayer);
 
-    if (result === true || result === undefined) {
+    if (result !==false) {
       ship.classList.remove(`${shipName}-vertical`);
       ship.classList.add(`${shipName}-horizontal`);
     }
