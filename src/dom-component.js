@@ -436,10 +436,10 @@ function fixTypo(playerOneName, playerTwoName) {
   const divArray = [...miniShipBoard];
   divArray[0].style.color = "#00ff3e";
   divArray[1].style.color = "#1fd1ce";
-  if (divArray[0].textContent !== "you") {
+  if (playerOneName !== "you") {
     divArray[0].textContent = `${playerOneName}'s fleet`;
     divArray[1].textContent = `${playerTwoName}'s fleet`;
-  } else {
+  } else if (playerOneName === "you") {
     divArray[0].textContent = `${playerOneName}'re fleet`;
     divArray[1].textContent = `${playerTwoName}'s fleet`;
     turn.textContent = `You're turn`;
